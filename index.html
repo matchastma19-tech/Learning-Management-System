@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Study Space</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@600;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👾</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,21 +15,20 @@
 <div id="toasts" aria-live="polite"></div>
 <dialog id="dlg"></dialog>
 <script>
-/* Live background: embers + light streaks */
+/* Live background: twinkling pixels + drifting code glyphs */
 (()=>{const c=document.getElementById('fx'),x=c.getContext('2d');
 if(matchMedia('(prefers-reduced-motion:reduce)').matches){c.remove();return}
-let w,h,P=[],L=[],t=0,on=true;const dpr=Math.min(devicePixelRatio||1,2);
+let w,h,P=[],G=[],t=0,on=true;const dpr=Math.min(devicePixelRatio||1,2),COL=['#ffd84a','#3ee6a8','#b388ff','#4dc9ff'],GL=['{ }','</>','();','=>','[ ]','0 1','#'];
 const rs=()=>{w=innerWidth;h=innerHeight;c.width=w*dpr;c.height=h*dpr;x.setTransform(dpr,0,0,dpr,0,0)};addEventListener('resize',rs);rs();
-const mk=i=>({x:Math.random()*w,y:i?Math.random()*h:h+10,r:Math.random()*2.2+.6,vy:Math.random()*.7+.25,vx:(Math.random()-.5)*.35,p:Math.random()*6.28,gold:Math.random()<.7});
-for(let i=0;i<Math.min(70,Math.round(w/16));i++)P.push(mk(true));
+for(let i=0;i<Math.min(60,Math.round(w/18));i++)P.push({x:Math.floor(Math.random()*w/4)*4,y:Math.floor(Math.random()*h/4)*4,s:Math.random()<.2?8:4,p:Math.random()*6.28,c:COL[i%4]});
+const mg=()=>({x:Math.random()*w,y:h+20,v:Math.random()*.5+.3,g:GL[Math.floor(Math.random()*GL.length)],c:COL[Math.floor(Math.random()*4)]});
+for(let i=0;i<8;i++){const g=mg();g.y=Math.random()*h;G.push(g)}
 document.addEventListener('visibilitychange',()=>{on=!document.hidden;if(on)loop()});
 function loop(){if(!on)return;t++;x.clearRect(0,0,w,h);
- if(t%260===0)L.push({x:Math.random()*w*1.2,y:-60,len:Math.random()*140+100,v:Math.random()*4+7});
- L=L.filter(s=>{s.x-=s.v*.7;s.y+=s.v*.7;const g=x.createLinearGradient(s.x,s.y,s.x+s.len*.7,s.y-s.len*.7);
-  g.addColorStop(0,'rgba(245,193,93,.9)');g.addColorStop(1,'rgba(245,193,93,0)');x.strokeStyle=g;x.lineWidth=1.6;x.beginPath();x.moveTo(s.x,s.y);x.lineTo(s.x+s.len*.7,s.y-s.len*.7);x.stroke();return s.y<h+80&&s.x>-200});
- P.forEach(p=>{p.y-=p.vy;p.x+=p.vx+Math.sin(t/60+p.p)*.25;if(p.y<-10)Object.assign(p,mk(false));
-  const a=.35+.45*Math.sin(t/30+p.p);x.globalAlpha=Math.max(.1,a);x.fillStyle=p.gold?'#f5c15d':'#5cc2ff';x.shadowColor=x.fillStyle;x.shadowBlur=10;x.beginPath();x.arc(p.x,p.y,p.r,0,6.28);x.fill()});
- x.globalAlpha=1;x.shadowBlur=0;requestAnimationFrame(loop)}
+ P.forEach(p=>{x.globalAlpha=Math.sin(t/40+p.p)>0?.7:.15;x.fillStyle=p.c;x.fillRect(p.x,p.y,p.s,p.s)});
+ x.font='12px "Press Start 2P",monospace';x.globalAlpha=.16;
+ G.forEach((g,i)=>{g.y-=g.v;if(g.y<-20)G[i]=mg();x.fillStyle=g.c;x.fillText(g.g,g.x,Math.round(g.y/4)*4)});
+ x.globalAlpha=1;requestAnimationFrame(loop)}
 loop()})();
 </script>
 <script src="app.js"></script>
