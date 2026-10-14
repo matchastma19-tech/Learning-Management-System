@@ -21,7 +21,7 @@ const UserService={
 };
 
 /* --- Task & Activity Service --- */
-const TYPES={quiz:{l:'Quiz',pl:'Quizzes',c:'#c76bff'},assignment:{l:'Assignment',pl:'Assignments',c:'#2ea8ff'},activity:{l:'Activity',pl:'Activities',c:'#ffb02e'},personal:{l:'Personal',pl:'Personal',c:'#34d399'}};
+const TYPES={quiz:{l:'Quiz',pl:'Quizzes',c:'#b388ff'},assignment:{l:'Assignment',pl:'Assignments',c:'#4dc9ff'},activity:{l:'Activity',pl:'Activities',c:'#ffd84a'},personal:{l:'Personal',pl:'Personal',c:'#3ee6a8'}};
 const TaskService={
  all:()=>DB.get('tasks',[]),
  forUser:u=>TaskService.all().filter(t=>u.role==='instructor'?t.owner===u.id:(t.type!=='personal'||t.owner===u.id)),
@@ -39,9 +39,10 @@ const SubmissionService={
 };
 
 /* --- Progress & Reward Service (3 tasks per level + rank tiers) --- */
-const PETS={plant:['🌰','🌱','🌿','🪴','🌳'],pet:['🥚','🐣','🐥','🐔','🦚']};
+const PETS={plant:['🌰','🌱','🌿','🪴','🌳'],pet:['🥚','🦎','🐊','🐲','🐉']};
 const MAXLV=5;
-const RANKS={'Warrior':{i:'⚔️',c:'#9aa3b2'},'Elite':{i:'🛡️',c:'#35c5b5'},'Legend':{i:'👑',c:'#c76bff'},'Mythic':{i:'🔥',c:'#ff6a3d'},'Mythical Honor':{i:'💠',c:'#ffb02e'},'Mythical Immortal':{i:'🌟',c:'#4de3ff'}};
+const TIERS=['Codex Master','Wizard','Architect','Hacker'];
+const RANKS={'Newbie':{i:'⌨️',c:'#9a97c9'},'Coder':{i:'💻',c:'#3ee6a8'},'Hacker':{i:'🕹️',c:'#b388ff'},'Architect':{i:'🧱',c:'#ff8a5c'},'Wizard':{i:'🧙',c:'#ffd84a'},'Codex Master':{i:'👾',c:'#4dc9ff'}};
 const RewardService={
  doneList(sid,assignedOnly){const T=Object.fromEntries(TaskService.all().map(t=>[t.id,t]));
   return Object.entries(SubmissionService.all()).filter(([k])=>k.endsWith(':'+sid)).map(([k,v])=>[T[k.split(':')[0]],v]).filter(([t])=>t&&(!assignedOnly||t.type!=='personal'))},
@@ -52,8 +53,8 @@ const RewardService={
  ranks(){
   const rows=DashboardService.students().map(s=>{const l=RewardService.doneList(s.id,true);return{s,n:l.length,last:Math.max(0,...l.map(([,v])=>v.at))}})
    .sort((a,b)=>b.n-a.n||a.last-b.last);
-  const tiers=['Mythical Immortal','Mythical Honor','Mythic','Legend'];let p=0;
-  rows.forEach(r=>{if(r.n===0)r.rank='Warrior';else{r.rank=tiers[Math.floor(p/3)]||'Elite';p++}});return rows},
+  let p=0;
+  rows.forEach(r=>{if(r.n===0)r.rank='Newbie';else{r.rank=TIERS[Math.floor(p/3)]||'Coder';p++}});return rows},
  rankOf:sid=>RewardService.ranks().find(r=>r.s.id===sid)
 };
 const badge=r=>`<span class="rank" style="--r:${RANKS[r].c}">${RANKS[r].i} ${r}</span>`;
@@ -100,7 +101,7 @@ function render(){
  const v={dashboard:u.role==='student'?studentHome:instructorHome,tasks:tasksView,garden:gardenView,monitor:monitorView,ranks:ranksView}[S.view](u);
  const enter=S.last!==S.view;S.last=S.view;
  const stu=u.role==='student',n=RewardService.done(u.id),me=stu&&RewardService.rankOf(u.id);
- const chips=stu?`<span class="chip2">⭐ Lv ${RewardService.level(n)}</span><span class="chip2">✅ ${n}</span>${badge(me?me.rank:'Warrior')}<button class="bell" onclick="showNotes()" aria-label="Reminders">🔔<em>${NotificationService.log(u.id).length}</em></button>`
+ const chips=stu?`<span class="chip2">⭐ Lv ${RewardService.level(n)}</span><span class="chip2">✅ ${n}</span>${badge(me?me.rank:'Newbie')}<button class="bell" onclick="showNotes()" aria-label="Reminders">🔔<em>${NotificationService.log(u.id).length}</em></button>`
   :`<span class="chip2">👩‍🏫 Instructor</span><span class="chip2">📝 ${TaskService.forUser(u).length} tasks</span>`;
  $('#root').innerHTML=`<div class="app"><aside><div class="brand">📚 Study Space</div>
   ${nav.map(x=>`<button class="nav ${S.view===x[0]?'on':''}" onclick="go('${x[0]}')">${x[1]} ${x[2]}</button>`).join('')}
@@ -111,7 +112,7 @@ const bellBtn=u=>'';
 
 /* ---- Login ---- */
 function loginView(){const reg=S.mode==='register';
- return`<div class="login"><div class="card"><h1>📚 Study Space</h1><p style="color:var(--mute);margin:.3rem 0 0">Know what's due next. Level up while you do it.</p>
+ return`<div class="login"><div class="card"><h1>📚 Study Space</h1><p style="color:var(--mute);margin:.8rem 0 0">Know what's due next. Level up while you do it.</p>
  <div class="seg"><button class="tab ${S.role==='student'?'on':''}" onclick="S.role='student';render()">Student</button><button class="tab ${S.role==='instructor'?'on':''}" onclick="S.role='instructor';render()">Instructor</button></div>
  <div class="sso" style="margin-top:.8rem"><button class="btn ghost" onclick="ssoLogin('google')">Continue with Google</button><button class="btn ghost" onclick="ssoLogin('uconnect')">Continue with NVSU uConnect</button></div><div class="or">or use email</div>
  ${reg?`<label for="nm">Full name</label><input id="nm" autocomplete="name">`:''}
@@ -128,22 +129,22 @@ function afterLogin(){S.err='';S.view='dashboard';S.last=null;try{Notification.r
 function logout(){UserService.logout();render()}
 
 /* ---- Student home ---- */
-function studentHome(u){const s=DashboardService.student(u),n=RewardService.done(u.id),lv=RewardService.level(n),c=RewardService.choice(u.id),nx=RewardService.toNext(n),rk=(RewardService.rankOf(u.id)||{}).rank||'Warrior';
+function studentHome(u){const s=DashboardService.student(u),n=RewardService.done(u.id),lv=RewardService.level(n),c=RewardService.choice(u.id),nx=RewardService.toNext(n),rk=(RewardService.rankOf(u.id)||{}).rank||'Newbie';
  return`<div class="hero"><div class="emblem" style="--r:${RANKS[rk].c}"><span>${RANKS[rk].i}</span></div>
  <div class="hinfo"><small>Welcome back</small><h2>${esc(u.name)}</h2>${badge(rk)}
  <div class="xp"><div class="bar"><i style="width:${nx?Math.round((3-nx)/3*100):100}%"></i></div><small>Level ${lv} · ${nx?`${nx} task${nx>1?'s':''} to next level`:'Max level'}</small></div></div>
  <div class="pethero">${PETS[c][lv-1]}</div></div>
  <div class="grid g3"><div class="card stat"><i class="ico">📌</i><b>${s.pending}</b><span>To do</span></div><div class="card stat"><i class="ico">🔥</i><b style="color:var(--hot)">${s.late}</b><span>Overdue</span></div><div class="card stat"><i class="ico">🏅</i><b>${s.done}</b><span>Completed</span></div></div>
- <div class="grid g2" style="margin-top:1rem"><div class="card pet"><div class="big">${PETS[c][lv-1]}</div><div><h3>Your ${c==='plant'?'plant':'pet'}</h3><p style="margin:.2rem 0 .5rem;color:var(--mute)">${s.today?`${s.today} task${s.today>1?'s':''} due today.`:'Nothing due today.'}</p><button class="btn sm" onclick="go('garden')">Open garden</button></div></div>
- <div class="card"><h3 style="margin-bottom:.6rem">Leaderboard</h3><p style="color:var(--mute);margin:0 0 .6rem">Complete assigned tasks to climb the ranks.</p><button class="btn sm" onclick="go('ranks')">See ranks</button></div></div>
- <div class="card" style="margin-top:1rem"><h3 style="margin-bottom:.7rem">Up next</h3>${s.next.length?s.next.map(t=>`<div style="display:flex;justify-content:space-between;gap:.6rem;padding:.45rem 0;border-bottom:1px solid var(--line)"><span><span class="chip" style="--c:${TYPES[t.type].c}">${TYPES[t.type].l}</span> ${esc(t.title)}</span><span class="due ${urg(t.due)}">${rel(t.due)}</span></div>`).join(''):'<div class="empty"><div class="e">🎉</div>Nothing pending.</div>'}</div>`}
+ <div class="grid g2" style="margin-top:1rem"><div class="card pet"><div class="big">${PETS[c][lv-1]}</div><div><h3>Your ${c==='plant'?'plant':'pet'}</h3><p style="margin:.5rem 0 .6rem;color:var(--mute)">${s.today?`${s.today} task${s.today>1?'s':''} due today.`:'Nothing due today.'}</p><button class="btn sm" onclick="go('garden')">Open garden</button></div></div>
+ <div class="card"><h3 style="margin-bottom:.8rem">Leaderboard</h3><p style="color:var(--mute);margin:0 0 .6rem">Complete assigned tasks to climb the ranks.</p><button class="btn sm" onclick="go('ranks')">See ranks</button></div></div>
+ <div class="card" style="margin-top:1rem"><h3 style="margin-bottom:.8rem">Up next</h3>${s.next.length?s.next.map(t=>`<div style="display:flex;justify-content:space-between;gap:.6rem;padding:.45rem 0;border-bottom:2px dashed var(--line)"><span><span class="chip" style="--c:${TYPES[t.type].c}">${TYPES[t.type].l}</span> ${esc(t.title)}</span><span class="due ${urg(t.due)}">${rel(t.due)}</span></div>`).join(''):'<div class="empty"><div class="e">🎉</div>Nothing pending.</div>'}</div>`}
 
 /* ---- Instructor home ---- */
 function instructorHome(u){const l=TaskService.forUser(u),sts=DashboardService.students(),up=TaskService.sorted(l.filter(t=>new Date(t.due)>Date.now())).slice(0,4);
  const comp=l.reduce((a,t)=>a+sts.filter(s=>SubmissionService.isDone(t.id,s.id)).length,0),tot=l.length*sts.length;
  return`<div class="top"><div><h2>Hello, ${esc(u.name.split(' ')[0])}</h2><p>Here's how your classes are doing.</p></div><button class="btn" onclick="taskDialog()">+ New task</button></div>
  <div class="grid g3"><div class="card stat"><i class="ico">📝</i><b>${l.length}</b><span>Tasks created</span></div><div class="card stat"><i class="ico">🧑‍🎓</i><b>${sts.length}</b><span>Students</span></div><div class="card stat"><i class="ico">📈</i><b>${tot?Math.round(comp/tot*100):0}%</b><span>Completion</span></div></div>
- <div class="card" style="margin-top:1rem"><h3 style="margin-bottom:.7rem">Coming up</h3>${up.length?up.map(t=>`<div style="display:flex;justify-content:space-between;padding:.45rem 0;border-bottom:1px solid var(--line)"><span><span class="chip" style="--c:${TYPES[t.type].c}">${TYPES[t.type].l}</span> ${esc(t.title)}</span><span class="due">${fmt(t.due)}</span></div>`).join(''):'<div class="empty"><div class="e">📝</div>Create your first quiz or assignment.</div>'}</div>`}
+ <div class="card" style="margin-top:1rem"><h3 style="margin-bottom:.8rem">Coming up</h3>${up.length?up.map(t=>`<div style="display:flex;justify-content:space-between;padding:.45rem 0;border-bottom:2px dashed var(--line)"><span><span class="chip" style="--c:${TYPES[t.type].c}">${TYPES[t.type].l}</span> ${esc(t.title)}</span><span class="due">${fmt(t.due)}</span></div>`).join(''):'<div class="empty"><div class="e">📝</div>Create your first quiz or assignment.</div>'}</div>`}
 
 /* ---- Tasks ---- */
 function tasksView(u){const stu=u.role==='student';let l=TaskService.sorted(TaskService.forUser(u));
@@ -169,7 +170,7 @@ function gardenView(u){const n=RewardService.done(u.id),c=RewardService.choice(u
  <div class="card pet" style="flex-direction:column;text-align:center;padding:2rem"><div class="big" style="font-size:7rem">${PETS[c][lv-1]}</div><h3>Level ${lv} / ${MAXLV}</h3>
  <div style="width:min(320px,100%)"><div class="bar"><i style="width:${nx?Math.round((3-nx)/3*100):100}%"></i></div><p style="margin:.5rem 0 0;color:var(--mute)">${nx?`${nx} more task${nx>1?'s':''} to level up`:'Fully grown!'} · ${n} done</p></div>
  <div class="stages">${PETS[c].map((e,i)=>`<span class="${i<lv?'got':''}">${e}</span>`).join('')}</div></div>
- <div class="card" style="margin-top:1rem"><h3 style="margin-bottom:.7rem">Choose what to grow</h3><div class="pick"><button class="${c==='plant'?'on':''}" onclick="pickPet('plant')">🌳 Plant</button><button class="${c==='pet'?'on':''}" onclick="pickPet('pet')">🐣 Pet</button></div></div>`}
+ <div class="card" style="margin-top:1rem"><h3 style="margin-bottom:.8rem">Choose what to grow</h3><div class="pick"><button class="${c==='plant'?'on':''}" onclick="pickPet('plant')">🌳 Plant</button><button class="${c==='pet'?'on':''}" onclick="pickPet('pet')">🐉 Dragon</button></div></div>`}
 const pickPet=c=>{RewardService.setChoice(UserService.me().id,c);render()};
 
 /* ---- Ranks ---- */
@@ -177,14 +178,14 @@ function ranksView(u){const rows=RewardService.ranks(),top=rows.length>=3?[1,0,2
  return`<div class="top"><div><h2>Leaderboard</h2><p>Ranked by completed tasks. Ties go to whoever finished first.</p></div></div>
  ${top.length?`<div class="podium">${top.map(([r,p])=>`<div class="pd p${p}" style="--r:${RANKS[r.rank].c}"><div class="em">${RANKS[r.rank].i}</div><b>${esc(r.s.name)}</b><small>${r.n} done</small><div class="blk">${p}</div></div>`).join('')}</div>`:''}
  <div class="card">${rows.length?rows.map((r,i)=>`<div class="row ${r.s.id===u.id?'me':''}"><div class="pos">${i+1}</div><b>${esc(r.s.name)}</b><span class="meta cnt">${r.n} done</span>${badge(r.rank)}</div>`).join(''):'<div class="empty"><div class="e">🏆</div>No students yet.</div>'}</div>
- <div class="card" style="margin-top:1rem"><h3 style="margin-bottom:.7rem">How ranks work</h3><div class="meta" style="gap:.5rem">${['Mythical Immortal','Mythical Honor','Mythic','Legend'].map((r,i)=>`${badge(r)} <span>#${i*3+1}–${i*3+3}</span>`).join('<br>')}<br>${badge('Elite')} <span>everyone else who completed a task</span><br>${badge('Warrior')} <span>no tasks completed yet</span></div></div>`}
+ <div class="card" style="margin-top:1rem"><h3 style="margin-bottom:.8rem">How ranks work</h3><div class="meta" style="gap:.5rem">${TIERS.map((r,i)=>`${badge(r)} <span>#${i*3+1}–${i*3+3}</span>`).join('<br>')}<br>${badge('Coder')} <span>everyone else who completed a task</span><br>${badge('Newbie')} <span>no tasks completed yet</span></div></div>`}
 
 /* ---- Instructor monitor ---- */
 function monitorView(u){const l=TaskService.sorted(TaskService.forUser(u)),rk=RewardService.ranks();
  return`<div class="top"><div><h2>Student progress</h2><p>See who has finished each task.</p></div></div>
  ${!rk.length?'<div class="card empty"><div class="e">🧑‍🎓</div>No students yet.</div>':`
- <div class="card"><h3 style="margin-bottom:.6rem">By student</h3>${rk.map(({s,rank})=>{const d=l.filter(t=>SubmissionService.isDone(t.id,s.id)).length,p=l.length?Math.round(d/l.length*100):0;return`<div style="margin:.8rem 0"><div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap"><b>${esc(s.name)}</b>${badge(rank)}<span class="meta">${d}/${l.length} · ${p}%</span></div><div class="bar" style="margin-top:.3rem"><i style="width:${p}%"></i></div></div>`}).join('')}</div>
- <div class="card table-wrap" style="margin-top:1rem"><h3 style="margin-bottom:.6rem">By task</h3><table><tr><th>Task</th><th>Due</th>${rk.map(r=>`<th>${esc(r.s.name.split(' ')[0])}</th>`).join('')}</tr>
+ <div class="card"><h3 style="margin-bottom:.8rem">By student</h3>${rk.map(({s,rank})=>{const d=l.filter(t=>SubmissionService.isDone(t.id,s.id)).length,p=l.length?Math.round(d/l.length*100):0;return`<div style="margin:.8rem 0"><div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap"><b>${esc(s.name)}</b>${badge(rank)}<span class="meta">${d}/${l.length} · ${p}%</span></div><div class="bar" style="margin-top:.3rem"><i style="width:${p}%"></i></div></div>`}).join('')}</div>
+ <div class="card table-wrap" style="margin-top:1rem"><h3 style="margin-bottom:.8rem">By task</h3><table><tr><th>Task</th><th>Due</th>${rk.map(r=>`<th>${esc(r.s.name.split(' ')[0])}</th>`).join('')}</tr>
  ${l.map(t=>`<tr><td>${esc(t.title)}</td><td>${fmt(t.due)}</td>${rk.map(({s})=>{const x=SubmissionService.get(t.id,s.id);return`<td>${x?(x.kind==='submitted'?'📎 Submitted':'✅ Done'):(new Date(t.due)<Date.now()?'⚠️ Missing':'⏳ Pending')}</td>`}).join('')}</tr>`).join('')}</table></div>`}`}
 
 /* ---- Dialogs & actions ---- */
@@ -213,9 +214,9 @@ function submitWork(id){const u=UserService.me(),f=$('#sf').files[0];
 function complete(id){const u=UserService.me();SubmissionService.set(id,u.id,{kind:'done',at:Date.now()});celebrate(u)}
 function undo(id){SubmissionService.set(id,UserService.me().id,null);render()}
 function celebrate(u){const n=RewardService.done(u.id),up=n>0&&n%3===0&&n<=12;render();
- const el=document.createElement('div');el.className='toast';el.innerHTML=up?`<b>🎉 Level up!</b>Your ${RewardService.choice(u.id)} reached level ${RewardService.level(n)}.`:'<b>✅ Task done</b>Keep the streak going.';$('#toasts').append(el);setTimeout(()=>el.remove(),4000)}
+ const el=document.createElement('div');el.className='toast';el.innerHTML=up?`<b>🎉 Level up!</b>Your ${RewardService.choice(u.id)==='pet'?'dragon':'plant'} reached level ${RewardService.level(n)}.`:'<b>✅ Task done</b>Keep the streak going.';$('#toasts').append(el);setTimeout(()=>el.remove(),4000)}
 function showNotes(){const u=UserService.me(),l=NotificationService.log(u.id);
- dlg().innerHTML=`<h3>Reminders</h3>${l.length?l.map(n=>`<div style="padding:.5rem 0;border-bottom:1px solid var(--line)"><b>${esc(n.title)}</b><div class="meta">${esc(n.msg)} · ${new Date(n.at).toLocaleString()}</div></div>`).join(''):'<div class="empty"><div class="e">🔕</div>No reminders yet. You get one 24 hours before a deadline and one when it arrives.</div>'}
+ dlg().innerHTML=`<h3>Reminders</h3>${l.length?l.map(n=>`<div style="padding:.5rem 0;border-bottom:2px dashed var(--line)"><b>${esc(n.title)}</b><div class="meta">${esc(n.msg)} · ${new Date(n.at).toLocaleString()}</div></div>`).join(''):'<div class="empty"><div class="e">🔕</div>No reminders yet. You get one 24 hours before a deadline and one when it arrives.</div>'}
  <div style="text-align:right;margin-top:.8rem"><button class="btn" onclick="dlg().close()">Close</button></div>`;dlg().showModal()}
 
 /* ---- Demo data ---- */
