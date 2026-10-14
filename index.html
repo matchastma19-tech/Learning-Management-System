@@ -9,15 +9,29 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="bg" aria-hidden="true">
-  <i style="--x:8%;--s:4px;--d:11s;--l:0s"></i><i style="--x:20%;--s:3px;--d:14s;--l:3s"></i>
-  <i style="--x:33%;--s:5px;--d:12s;--l:6s"></i><i style="--x:47%;--s:3px;--d:16s;--l:1s"></i>
-  <i style="--x:58%;--s:4px;--d:13s;--l:8s"></i><i style="--x:70%;--s:3px;--d:15s;--l:4s"></i>
-  <i style="--x:82%;--s:5px;--d:11s;--l:7s"></i><i style="--x:93%;--s:3px;--d:17s;--l:2s"></i>
-</div>
+<div class="bg" aria-hidden="true"></div>
+<canvas id="fx" aria-hidden="true"></canvas>
 <div id="root"></div>
 <div id="toasts" aria-live="polite"></div>
 <dialog id="dlg"></dialog>
+<script>
+/* Live background: embers + light streaks */
+(()=>{const c=document.getElementById('fx'),x=c.getContext('2d');
+if(matchMedia('(prefers-reduced-motion:reduce)').matches){c.remove();return}
+let w,h,P=[],L=[],t=0,on=true;const dpr=Math.min(devicePixelRatio||1,2);
+const rs=()=>{w=innerWidth;h=innerHeight;c.width=w*dpr;c.height=h*dpr;x.setTransform(dpr,0,0,dpr,0,0)};addEventListener('resize',rs);rs();
+const mk=i=>({x:Math.random()*w,y:i?Math.random()*h:h+10,r:Math.random()*2.2+.6,vy:Math.random()*.7+.25,vx:(Math.random()-.5)*.35,p:Math.random()*6.28,gold:Math.random()<.7});
+for(let i=0;i<Math.min(70,Math.round(w/16));i++)P.push(mk(true));
+document.addEventListener('visibilitychange',()=>{on=!document.hidden;if(on)loop()});
+function loop(){if(!on)return;t++;x.clearRect(0,0,w,h);
+ if(t%260===0)L.push({x:Math.random()*w*1.2,y:-60,len:Math.random()*140+100,v:Math.random()*4+7});
+ L=L.filter(s=>{s.x-=s.v*.7;s.y+=s.v*.7;const g=x.createLinearGradient(s.x,s.y,s.x+s.len*.7,s.y-s.len*.7);
+  g.addColorStop(0,'rgba(245,193,93,.9)');g.addColorStop(1,'rgba(245,193,93,0)');x.strokeStyle=g;x.lineWidth=1.6;x.beginPath();x.moveTo(s.x,s.y);x.lineTo(s.x+s.len*.7,s.y-s.len*.7);x.stroke();return s.y<h+80&&s.x>-200});
+ P.forEach(p=>{p.y-=p.vy;p.x+=p.vx+Math.sin(t/60+p.p)*.25;if(p.y<-10)Object.assign(p,mk(false));
+  const a=.35+.45*Math.sin(t/30+p.p);x.globalAlpha=Math.max(.1,a);x.fillStyle=p.gold?'#f5c15d':'#5cc2ff';x.shadowColor=x.fillStyle;x.shadowBlur=10;x.beginPath();x.arc(p.x,p.y,p.r,0,6.28);x.fill()});
+ x.globalAlpha=1;x.shadowBlur=0;requestAnimationFrame(loop)}
+loop()})();
+</script>
 <script src="app.js"></script>
 </body>
 </html>
