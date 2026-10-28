@@ -4,33 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Study Space</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👾</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="bg" aria-hidden="true"></div>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
 <canvas id="fx" aria-hidden="true"></canvas>
-<div id="root"></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div id="root"><div class="boot">📚</div></div>
 <div id="toasts" aria-live="polite"></div>
 <dialog id="dlg"></dialog>
-<script>
-/* Live background: twinkling pixels + drifting code glyphs */
-(()=>{const c=document.getElementById('fx'),x=c.getContext('2d');
-if(matchMedia('(prefers-reduced-motion:reduce)').matches){c.remove();return}
-let w,h,P=[],G=[],t=0,on=true;const dpr=Math.min(devicePixelRatio||1,2),COL=['#ffd84a','#3ee6a8','#b388ff','#4dc9ff'],GL=['{ }','</>','();','=>','[ ]','0 1','#'];
-const rs=()=>{w=innerWidth;h=innerHeight;c.width=w*dpr;c.height=h*dpr;x.setTransform(dpr,0,0,dpr,0,0)};addEventListener('resize',rs);rs();
-for(let i=0;i<Math.min(60,Math.round(w/18));i++)P.push({x:Math.floor(Math.random()*w/4)*4,y:Math.floor(Math.random()*h/4)*4,s:Math.random()<.2?8:4,p:Math.random()*6.28,c:COL[i%4]});
-const mg=()=>({x:Math.random()*w,y:h+20,v:Math.random()*.5+.3,g:GL[Math.floor(Math.random()*GL.length)],c:COL[Math.floor(Math.random()*4)]});
-for(let i=0;i<8;i++){const g=mg();g.y=Math.random()*h;G.push(g)}
-document.addEventListener('visibilitychange',()=>{on=!document.hidden;if(on)loop()});
-function loop(){if(!on)return;t++;x.clearRect(0,0,w,h);
- P.forEach(p=>{x.globalAlpha=Math.sin(t/40+p.p)>0?.7:.15;x.fillStyle=p.c;x.fillRect(p.x,p.y,p.s,p.s)});
- x.font='12px "Press Start 2P",monospace';x.globalAlpha=.16;
- G.forEach((g,i)=>{g.y-=g.v;if(g.y<-20)G[i]=mg();x.fillStyle=g.c;x.fillText(g.g,g.x,Math.round(g.y/4)*4)});
- x.globalAlpha=1;requestAnimationFrame(loop)}
-loop()})();
-</script>
+<script src="fx.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
