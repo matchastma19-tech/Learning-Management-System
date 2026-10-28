@@ -1,435 +1,208 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Study Space</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
-/* STUDY SPACE - calm theme with a garden accent, live background and motion */
-:root{--bg:#f4f6fa;--surface:#fff;--ink:#17202e;--mute:#667085;--line:#e3e7ee;--brand:#0e6b5c;--brand-ink:#fff;--brand-soft:#e2f3ef;--brand-deep:#0b4f45;--gold:#f0b429;--ok:#12926b;--hot:#d92d4b;--warn:#a8570a;--blue:#1f6fd1;--note-bg:#fff6dc;--note-bd:#f0d37a;--note-ink:#6b4a00;--late-bg:#fde8ec;--late-bd:#f2a6b6;--late-ink:#8a1230;--orb:.38;--display:'Bricolage Grotesque','Figtree',system-ui,sans-serif;--body:'Figtree',system-ui,sans-serif;--r-sm:10px;--r-md:16px;--r-lg:22px}
-@media(prefers-color-scheme:dark){:root{--bg:#0f141b;--surface:#171e28;--ink:#eef1f6;--mute:#98a2b3;--line:#273040;--brand:#3fcfae;--brand-ink:#06251f;--brand-soft:#12332d;--brand-deep:#0d3d36;--gold:#f5c04a;--ok:#3fcfae;--hot:#ff6b84;--warn:#f5b94a;--blue:#6aaeff;--note-bg:#3a2e0c;--note-bd:#6d5718;--note-ink:#f6dc9a;--late-bg:#3d1520;--late-bd:#7a2a3c;--late-ink:#ffc2cf;--orb:.22}}
-*{box-sizing:border-box}html,body{height:100%;margin:0}html{background:var(--bg)}[hidden]{display:none!important}
-body{color:var(--ink);font:16px/1.55 var(--body);padding-top:env(safe-area-inset-top,0);background-image:radial-gradient(color-mix(in srgb,var(--ink) 9%,transparent) 1px,transparent 1.5px);background-size:22px 22px}
-h1,h2,h3{font-family:var(--display);margin:0;line-height:1.25;font-weight:700;letter-spacing:-.01em}
-button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
-:focus-visible{outline:3px solid color-mix(in srgb,var(--brand) 55%,transparent);outline-offset:2px}
-@keyframes enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
-@keyframes bob{50%{transform:translateY(-6px)}}
-@keyframes grow{from{width:0}}
-@keyframes growh{from{transform:scaleY(.2)}to{transform:scaleY(1)}}
-@keyframes wiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}40%{transform:rotate(12deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(5deg)}}
-@keyframes orb1{to{transform:translate(18vw,14vh) scale(1.15)}}@keyframes orb2{to{transform:translate(-16vw,-10vh) scale(.9)}}@keyframes orb3{to{transform:translate(-10vw,16vh) scale(1.2)}}
-@keyframes shine{to{transform:translate(-40px,30px)}}
-.bg{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
-.bg i{position:absolute;border-radius:50%;filter:blur(90px);opacity:var(--orb);will-change:transform}
-.bg i:nth-child(1){width:46vmax;height:46vmax;left:-12vmax;top:-14vmax;background:#3fcfae;animation:orb1 26s ease-in-out infinite alternate}
-.bg i:nth-child(2){width:40vmax;height:40vmax;right:-10vmax;top:18vh;background:#8b5cf6;animation:orb2 32s ease-in-out infinite alternate}
-.bg i:nth-child(3){width:34vmax;height:34vmax;left:25vw;bottom:-18vmax;background:#f0b429;animation:orb3 30s ease-in-out infinite alternate}
-#fx{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
-#confetti{position:fixed;inset:0;width:100%;height:100%;z-index:200;pointer-events:none}
-.boot{min-height:100vh;display:grid;place-items:center;font-size:3rem;animation:bob 1.6s ease-in-out infinite}
-.btn{border:1px solid transparent;background:var(--brand);color:var(--brand-ink);font:600 .875rem/1.2 var(--body);padding:.65rem 1.15rem;border-radius:999px;transition:background .15s,transform .12s,border-color .15s,box-shadow .15s;display:inline-flex;align-items:center;justify-content:center;gap:.5rem}
-.btn:hover{background:color-mix(in srgb,var(--brand) 88%,var(--ink));transform:translateY(-1px);box-shadow:0 6px 16px color-mix(in srgb,var(--brand) 30%,transparent)}
-.btn:active{transform:translateY(1px);box-shadow:none}.btn:disabled{opacity:.6;pointer-events:none}
-.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}.btn.ghost:hover{background:var(--brand-soft);border-color:color-mix(in srgb,var(--brand) 40%,var(--line));box-shadow:none}
-.btn.danger{background:transparent;color:var(--hot);border-color:color-mix(in srgb,var(--hot) 35%,var(--line))}.btn.danger:hover{background:color-mix(in srgb,var(--hot) 10%,transparent);box-shadow:none}
-.btn.sm{padding:.4rem .8rem;font-size:.8rem}
-.linkbtn{background:none;border:0;padding:0;color:var(--blue);font:600 .9rem var(--body);text-decoration:underline;text-underline-offset:3px}
-input,select,textarea{width:100%;padding:.65rem .85rem;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);transition:border-color .15s,box-shadow .15s}
-input:focus,select:focus,textarea:focus{border-color:var(--brand);outline:0;box-shadow:0 0 0 4px var(--brand-soft)}
-input[type=file]{padding:.45rem}input[type=file]::file-selector-button{border:0;background:var(--brand-soft);color:var(--brand);font:600 .8rem var(--body);padding:.4rem .8rem;border-radius:999px;margin-right:.7rem;cursor:pointer}
-label{display:block;font:600 .85rem/1.4 var(--body);margin:1rem 0 .35rem;color:var(--mute)}
-.chk{display:flex;gap:.5rem;align-items:center;font-weight:500;color:var(--ink);margin:.3rem 0}.chk input{width:auto}
-.app{display:grid;grid-template-columns:240px 1fr;min-height:100%}.col{min-width:0}
-aside{background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-right:1px solid var(--line);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:.25rem;position:sticky;top:0;height:100vh}
-.brand{font:700 1.2rem/1.3 var(--display);color:var(--brand);padding:0 .75rem 1.4rem}
-.nav{background:none;border:0;border-radius:var(--r-sm);color:var(--mute);text-align:left;padding:.65rem .8rem;font:600 .95rem/1.3 var(--body);transition:background .15s,color .15s,transform .15s}
-.nav:hover{background:color-mix(in srgb,var(--ink) 5%,transparent);color:var(--ink);transform:translateX(3px)}.nav.on{color:var(--brand);background:var(--brand-soft)}
-.who{margin-top:auto;font-size:.88rem;padding:.8rem;color:var(--mute);border-top:1px solid var(--line)}.who b{color:var(--ink);font-size:.95rem}
-.topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:.8rem;padding:.75rem clamp(1rem,3vw,2.4rem);background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.topbar .tt{font:700 1.1rem/1.3 var(--display)}.chips{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-.chip2{font:600 .8rem/1.3 var(--body);padding:.35rem .75rem;background:var(--surface);border:1px solid var(--line);border-radius:999px}
-.bell{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:999px;width:36px;height:36px;display:grid;place-items:center;font-size:1rem;padding:0}.bell:hover{animation:wiggle .6s}
-.bell em{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 4px;background:var(--hot);color:#fff;font:700 .68rem/18px var(--body);text-align:center;border-radius:999px;font-style:normal}
-main{padding:1.6rem clamp(1rem,3vw,2.4rem) 3rem;max-width:980px;width:100%}
-main.enter>*{animation:enter .5s cubic-bezier(.2,.7,.2,1) backwards}
-main.enter>:nth-child(2){animation-delay:.06s}main.enter>:nth-child(3){animation-delay:.12s}main.enter>:nth-child(4){animation-delay:.18s}main.enter>:nth-child(n+5){animation-delay:.24s}
-.top{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1.4rem;flex-wrap:wrap}.top h2{font-size:1.7rem}.top p{margin:.3rem 0 0;color:var(--mute)}
-.grid{display:grid;gap:1rem}.g3{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-.card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:1.15rem 1.3rem}.card h3{font-size:1.05rem}
-.stat{overflow:hidden;transition:transform .2s,border-color .2s}.stat:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--brand) 40%,var(--line))}
-.stat .ico{position:absolute;right:1rem;top:1rem;width:38px;height:38px;display:grid;place-items:center;font-size:1.1rem;font-style:normal;background:var(--brand-soft);border-radius:12px}
-.stat b{font:700 2.2rem/1.2 var(--display);display:block;margin-top:.2rem}.stat span{color:var(--mute);font-size:.9rem}
-.hero{position:relative;display:flex;gap:1.4rem;align-items:center;flex-wrap:wrap;padding:1.6rem 1.7rem;margin-bottom:1rem;border-radius:var(--r-lg);background:var(--brand-deep);color:#fff;overflow:hidden}
-.hero::after{content:'';position:absolute;right:-70px;top:-70px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.07);pointer-events:none;animation:shine 9s ease-in-out infinite alternate}
-.emblem{position:relative;flex:none;width:84px;height:84px;display:grid;place-items:center;font-size:2.2rem;border-radius:50%;background:rgba(255,255,255,.1);border:3px solid var(--r)}
-.hinfo{flex:1;min-width:210px;position:relative;z-index:1}.hinfo small{color:rgba(255,255,255,.72)}.hinfo h2{font-size:1.7rem;margin:.2rem 0 .7rem;color:#fff}
-.hero .rank{color:#fff;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35)}
-.xp{margin-top:.9rem}.xp .bar{margin-bottom:.4rem;background:rgba(255,255,255,.2)}.xp .bar i{background:var(--gold)}
-.pethero{position:relative;z-index:1;display:grid;place-items:center;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.12);font-size:3.2rem;animation:bob 2.4s ease-in-out infinite}
-.pet{display:flex;gap:1.1rem;align-items:center}.pet .big{font-size:3.6rem;line-height:1;animation:bob 2.4s ease-in-out infinite}
-.bar{height:10px;background:var(--line);border-radius:999px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ok);border-radius:999px;transition:width .4s ease}
-main.enter .bar i{animation:grow .9s cubic-bezier(.2,.7,.2,1) .2s backwards}
-.nbar{display:flex;gap:.8rem;align-items:center;padding:.75rem 1rem;margin-bottom:1.2rem;background:var(--note-bg);border:1px solid var(--note-bd);color:var(--note-ink);border-radius:var(--r-md)}
-.nbar b:first-child{display:inline-block;animation:wiggle 1.2s ease-in-out 1s 3}.nbar.due{background:var(--late-bg);border-color:var(--late-bd);color:var(--late-ink)}
-.nbar span{flex:1}.nbar button{background:none;border:0;font-size:1.1rem;color:inherit;border-radius:8px;padding:.1rem .4rem}
-.task{display:grid;grid-template-columns:5px 1fr auto;gap:1rem;align-items:center;margin-bottom:.7rem;padding:.95rem 1.2rem .95rem 1rem;transition:border-color .15s,transform .2s}
-.task:hover{border-color:color-mix(in srgb,var(--c) 55%,var(--line));transform:translateY(-2px)}
-.stripe{align-self:stretch;background:var(--c);border-radius:99px}.task.done{opacity:.6}.task.done h3{text-decoration:line-through}
-.task h3{font-size:1rem;line-height:1.4;font-weight:600}
-.meta{color:var(--mute);font-size:.88rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.3rem}.meta a{color:var(--blue)}
-.chip{font:600 .72rem/1.3 var(--body);padding:.2rem .6rem;border-radius:999px;background:color-mix(in srgb,var(--c) 16%,var(--surface));color:color-mix(in srgb,var(--c) 55%,var(--ink))}
-.due{font-weight:600}.due.soon{color:var(--warn)}.due.late{color:var(--hot)}
-.acts{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end}
-.tabs{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:1rem}
-.tab{border:1px solid var(--line);background:var(--surface);padding:.4rem .85rem;font:600 .85rem/1.3 var(--body);color:var(--mute);border-radius:999px;transition:background .15s,color .15s}
-.tab:hover{color:var(--ink)}.tab.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.empty{text-align:center;padding:2.4rem 1rem;color:var(--mute)}.empty .e{font-size:2.4rem;animation:bob 2.4s ease-in-out infinite}
-.media{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.5rem;margin-top:.6rem}.media a{display:block}
-.media img,.media video{width:100%;height:110px;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:var(--line);display:block;transition:transform .2s}
-.media a:hover img{transform:scale(1.03)}.media video{grid-column:span 2;height:150px;object-fit:contain;background:#000}
-dialog .media{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}.up{margin-top:.8rem}.up small{color:var(--mute)}
-.rank{display:inline-flex;gap:.35rem;align-items:center;font:600 .78rem/1.3 var(--body);padding:.25rem .65rem;color:color-mix(in srgb,var(--r) 55%,var(--ink));border:1px solid color-mix(in srgb,var(--r) 55%,transparent);background:color-mix(in srgb,var(--r) 14%,var(--surface));border-radius:999px;white-space:nowrap}
-.podium{display:flex;justify-content:center;align-items:flex-end;gap:.7rem;margin-bottom:1.2rem}
-.pd{flex:1;max-width:170px;text-align:center}.pd .em{font-size:2rem;animation:bob 2.4s ease-in-out infinite}
-.pd b{display:block;font:600 .9rem/1.5 var(--body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pd small{color:var(--mute)}
-.pd .blk{margin-top:.5rem;display:grid;place-items:center;font:700 1.5rem var(--display);color:color-mix(in srgb,var(--r) 55%,var(--ink));background:color-mix(in srgb,var(--r) 20%,var(--surface));border:1px solid color-mix(in srgb,var(--r) 40%,var(--line));border-bottom:0;border-radius:14px 14px 0 0;transform-origin:bottom}
-.pd.p1 .blk{height:112px}.pd.p2 .blk{height:82px}.pd.p3 .blk{height:62px}main.enter .pd .blk{animation:growh .7s cubic-bezier(.2,.7,.2,1) .25s backwards}
-.row{display:grid;grid-template-columns:44px 1fr auto auto;gap:.8rem;align-items:center;padding:.7rem .5rem;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}
-.row.me{background:var(--brand-soft);border-radius:var(--r-sm);border-bottom-color:transparent}.row .pos{font:700 1rem var(--display);color:var(--mute);text-align:center}
-table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{text-align:left;padding:.6rem .5rem;border-bottom:1px solid var(--line)}th{color:var(--mute);font-weight:600}.table-wrap{overflow-x:auto}
-dialog{border:1px solid var(--line);border-radius:var(--r-lg);padding:1.5rem;width:min(500px,92vw);max-height:90vh;background:var(--surface);color:var(--ink);box-shadow:0 24px 60px rgba(10,20,40,.25)}
-dialog[open]{animation:pop .2s ease-out}dialog::backdrop{background:rgba(10,16,26,.5);backdrop-filter:blur(2px)}dialog h3{font-size:1.2rem}
-.login{min-height:100%;display:grid;place-items:center;padding:1rem}
-.login .card{width:min(430px,100%);padding:2rem;border-radius:var(--r-lg);animation:pop .4s cubic-bezier(.2,.7,.2,1);box-shadow:0 20px 50px rgba(10,20,40,.10)}
-.login h1{font-size:1.9rem;color:var(--brand)}
-.seg{display:flex;gap:.25rem;margin:1.3rem 0 .2rem;padding:.25rem;background:color-mix(in srgb,var(--ink) 6%,transparent);border-radius:999px}.seg button{flex:1;border:0;background:transparent}
-.seg .tab.on{background:var(--surface);color:var(--ink);border:0;box-shadow:0 1px 3px rgba(10,20,40,.15)}
-.or{display:flex;align-items:center;gap:.8rem;color:var(--mute);margin:1rem 0;font-size:.85rem}.or::before,.or::after{content:'';flex:1;height:1px;background:var(--line)}
-.err{color:var(--hot);font-size:.88rem;min-height:1.2em;margin-top:.4rem}.note{color:var(--ok);font-size:.88rem;margin-top:.4rem}
-.setup code{background:var(--brand-soft);padding:.1rem .4rem;border-radius:6px;font-size:.85rem}.setup li{margin:.4rem 0}
-#toasts{position:fixed;right:1rem;top:calc(4.6rem + env(safe-area-inset-top,0));display:grid;gap:.6rem;z-index:99;width:min(340px,90vw)}
-.toast{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:var(--r-sm);padding:.85rem 1rem;box-shadow:0 10px 30px rgba(10,20,40,.15);animation:pop .25s ease-out}
-.toast.bad{border-left-color:var(--hot)}.toast b{display:block;font:700 .95rem/1.4 var(--display);margin-bottom:.15rem}
-.pick{display:flex;gap:.6rem}.pick button{flex:1;border:1px solid var(--line);background:var(--surface);padding:.85rem;font:600 .95rem/1.3 var(--body);border-radius:var(--r-sm);transition:background .15s,border-color .15s,transform .15s}
-.pick button:hover{border-color:color-mix(in srgb,var(--brand) 40%,var(--line));transform:translateY(-2px)}.pick .on{border-color:var(--brand);background:var(--brand-soft);color:var(--brand)}
-.stages{display:flex;gap:.7rem;font-size:2rem;margin-top:.9rem;flex-wrap:wrap;justify-content:center}.stages span{opacity:.25;filter:grayscale(1)}.stages .got{opacity:1;filter:none}
-@media(max-width:760px){.app{grid-template-columns:1fr;padding-bottom:4.5rem}
-aside{position:fixed;bottom:0;left:0;right:0;top:auto;height:auto;flex-direction:row;justify-content:space-around;padding:.35rem .4rem calc(.35rem + env(safe-area-inset-bottom,0));z-index:50;gap:.2rem;border-right:0;border-top:1px solid var(--line)}
-.brand,.who{display:none}.nav{padding:.6rem .2rem;text-align:center;font-size:.78rem;flex:1}.nav:hover{transform:none}.topbar .tt{display:none}.chips{width:100%;justify-content:space-between}
-.task{grid-template-columns:5px 1fr}.acts{grid-column:2;justify-content:flex-start}.row{grid-template-columns:34px 1fr auto}.row .cnt{display:none}
-.hero{gap:1rem;padding:1.3rem}.emblem{width:68px;height:68px;font-size:1.8rem}.pethero{width:72px;height:72px;font-size:2.4rem}.top h2,.hinfo h2{font-size:1.4rem}.podium{gap:.4rem}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style>
-</head>
-<body>
-<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
-<canvas id="fx" aria-hidden="true"></canvas>
-<canvas id="confetti" aria-hidden="true"></canvas>
-<div id="root"><div class="boot">📚</div></div>
-<div id="toasts" aria-live="polite"></div>
-<dialog id="dlg"></dialog>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+:root{--g:#34d399;--ink:#e9f3ef;--mut:#9fb6ad;--card:rgba(255,255,255,.075);--line:rgba(255,255,255,.15)}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 "Segoe UI",system-ui,sans-serif;color:var(--ink);background:#07120e;min-height:100vh}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden}
+.bg i{position:absolute;border-radius:50%;filter:blur(80px);opacity:.42;animation:fl 20s ease-in-out infinite alternate}
+.bg i:nth-child(1){width:48vw;height:48vw;background:#10b981;left:-12vw;top:-12vw}
+.bg i:nth-child(2){width:40vw;height:40vw;background:#3b82f6;right:-8vw;top:25vh;animation-delay:-7s}
+.bg i:nth-child(3){width:36vw;height:36vw;background:#a855f7;left:30vw;bottom:-16vw;animation-delay:-13s}
+@keyframes fl{to{transform:translate(9vw,6vh) scale(1.2)}}
+@media(prefers-reduced-motion:reduce){.bg i{animation:none}}
+a{color:var(--g)}h1,h2,h3{margin:.2em 0}.mut{color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;backdrop-filter:blur(12px)}
+input,select,textarea{width:100%;padding:10px 12px;margin:5px 0 10px;border-radius:9px;border:1px solid var(--line);background:rgba(0,0,0,.35);color:var(--ink);font:inherit}
+label{display:block;color:var(--mut);font-size:13px}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px;border-radius:9px;cursor:pointer;font:inherit;font-weight:600}
+.btn:hover{border-color:var(--g)}.btn:focus-visible,.tab:focus-visible,input:focus-visible{outline:2px solid var(--g)}
+.btn.p{background:var(--g);color:#05261b;border:0}.btn.g{width:100%;background:#fff;color:#222;border:0}.btn.s{padding:5px 10px;font-size:13px}.btn.d{color:#fda4af}
+.auth{max-width:400px;margin:9vh auto;text-align:center}.auth form{text-align:left}.or{margin:14px 0;color:var(--mut)}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:12px 22px;border-bottom:1px solid var(--line);background:rgba(7,18,14,.55);backdrop-filter:blur(10px);position:sticky;top:0;z-index:5}
+.logo{font-size:19px}nav{display:flex;gap:6px}.tab{background:none;border:0;color:var(--mut);padding:8px 12px;border-radius:8px;cursor:pointer;font:inherit;font-weight:600}.tab.on{background:var(--card);color:var(--g)}
+.right{display:flex;gap:10px;align-items:center}.ic{background:none;border:0;font-size:20px;cursor:pointer;position:relative;color:var(--ink)}
+.dot{position:absolute;top:-4px;right:-6px;background:#f43f5e;border-radius:9px;font-size:11px;padding:0 5px}
+main{max-width:980px;margin:0 auto;padding:20px}.grid{display:grid;grid-template-columns:minmax(240px,300px) 1fr;gap:16px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}}
+.plant{text-align:center}.plant .em{line-height:1.1;transition:font-size .4s}
+.bar{height:9px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden;margin:8px 0}.bar b{display:block;height:100%;background:var(--g);transition:width .5s}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:12px}.stats .card b{font-size:22px;display:block}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0}.tools .sp{flex:1}
+.task{margin-bottom:10px;display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap}.task.done{opacity:.65}
+.badge{font-size:12px;padding:2px 8px;border-radius:9px;background:rgba(255,255,255,.12);margin-right:6px}
+.badge.quiz{background:#7c3aed}.badge.assignment{background:#2563eb}.badge.activity{background:#0d9488}.badge.personal{background:#b45309}
+.late{color:#fda4af}.acts{display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left}.me{background:rgba(52,211,153,.12)}
+details{margin-top:8px}summary{cursor:pointer;color:var(--g)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:grid;place-items:center;z-index:20;padding:14px}
+.ov .card{background:#10201a;width:100%;max-width:440px;max-height:92vh;overflow:auto}
+#alarm{position:fixed;top:0;left:0;right:0;z-index:30;background:#f43f5e;color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;font-weight:700;animation:sh .5s 3}
+@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--g);color:#05261b;padding:10px 18px;border-radius:10px;font-weight:700;z-index:40}.toast.bad{background:#f43f5e;color:#fff}
+</style></head>
+<body><div class="bg"><i></i><i></i><i></i></div><div id="app"></div>
 <script>
-/* ============ 1. YOUR SUPABASE KEYS (Project Settings > API) ============ */
-const SUPABASE_URL='PASTE_YOUR_PROJECT_URL';
-const SUPABASE_KEY='PASTE_YOUR_ANON_PUBLIC_KEY';   // the "anon / public" key is safe to put here
-/* ======================================================================= */
+/* ====== 1) PUT YOUR SUPABASE KEYS HERE (Project Settings > API) ====== */
+const SB_URL='https://tgdbijstxhielgqfpsvj.supabase.co', SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRnZGJpanN0eGhpZWxncWZwc3ZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxOTkyMTUsImV4cCI6MjEwODc3NTIxNX0.oiZT1HSWp_-0Qke1Ikybb2UEeIW3MmeiG_Uxp-aPeDY';
 
-const READY=!SUPABASE_URL.startsWith('PASTE')&&!SUPABASE_KEY.startsWith('PASTE');
-const sb=READY?supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
-const MAXMB=50,BUCKET='uploads';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const LS={get(k,d){try{return JSON.parse(localStorage.getItem('ss_'+k))??d}catch{return d}},set(k,v){try{localStorage.setItem('ss_'+k,JSON.stringify(v))}catch{}}};
+const KINDS={activity:'Activity',assignment:'Assignment',quiz:'Quiz',personal:'Personal'};
+const PLANTS={tree:['🌱','🌿','🪴','🌳','🌲','🎄'],flower:['🌱','🌷','🌹','🌺','🌻','💐'],pet:['🥚','🐣','🐥','🐤','🦆','🦢']};
+const RANKS=['Mythical Immortal','Mythical Honor','Mythic','Legend'];
+let sb,me,tasks=[],subs=[],people=[],tab='tasks',flt='pending',notes=[],ac;
+const fd=x=>new Date(x).toLocaleString([],{dateStyle:'medium',timeStyle:'short'});
+const loc=x=>{const d=new Date(x);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)};
+const toast=(m,bad)=>{const d=document.createElement('div');d.className='toast'+(bad?' bad':'');d.textContent=m;document.body.append(d);setTimeout(()=>d.remove(),3800)};
+const close=()=>document.querySelector('.ov')?.remove();
+function modal(h){close();const o=document.createElement('div');o.className='ov';o.innerHTML=`<div class="card">${h}</div>`;o.onclick=e=>{if(e.target===o)close()};document.body.append(o)}
+async function up(f){if(!f||!f.size)return{};const p=`${me.id}/${Date.now()}-${f.name.replace(/[^\w.-]/g,'_')}`;const{error}=await sb.storage.from('files').upload(p,f);if(error)throw error;return{file_url:sb.storage.from('files').getPublicUrl(p).data.publicUrl,file_name:f.name}}
+const link=(u,n)=>u?`<a href="${esc(u)}" target="_blank" rel="noopener">📎 ${esc(n||'file')}</a>`:'';
 
-/* ============ Effects: live background, count-up, confetti ============ */
-const REDUCED=matchMedia('(prefers-reduced-motion:reduce)').matches;
-(()=>{const c=$('#fx');if(REDUCED){c.remove();return}
- const x=c.getContext('2d'),dpr=Math.min(devicePixelRatio||1,2);let w,h,P=[],on=true,rgb='23,32,46';
- const readColor=()=>{const m=getComputedStyle(document.documentElement).getPropertyValue('--brand').trim().match(/^#([0-9a-f]{6})$/i);if(m){const n=parseInt(m[1],16);rgb=[n>>16,n>>8&255,n&255].join(',')}};
- const rs=()=>{w=innerWidth;h=innerHeight;c.width=w*dpr;c.height=h*dpr;x.setTransform(dpr,0,0,dpr,0,0);
-  P=Array.from({length:Math.min(55,Math.round(w*h/26000))},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.28,vy:(Math.random()-.5)*.28,r:Math.random()*1.6+1}))};
- addEventListener('resize',rs);matchMedia('(prefers-color-scheme:dark)').addEventListener('change',readColor);readColor();rs();
- document.addEventListener('visibilitychange',()=>{on=!document.hidden;if(on)loop()});
- function loop(){if(!on)return;x.clearRect(0,0,w,h);
-  for(let i=0;i<P.length;i++){const p=P[i];p.x+=p.vx;p.y+=p.vy;if(p.x<-10)p.x=w+10;if(p.x>w+10)p.x=-10;if(p.y<-10)p.y=h+10;if(p.y>h+10)p.y=-10;
-   x.fillStyle=`rgba(${rgb},.28)`;x.beginPath();x.arc(p.x,p.y,p.r,0,6.283);x.fill();
-   for(let j=i+1;j<P.length;j++){const q=P[j],d=Math.hypot(p.x-q.x,p.y-q.y);if(d<130){x.strokeStyle=`rgba(${rgb},${.14*(1-d/130)})`;x.lineWidth=1;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(q.x,q.y);x.stroke()}}}
-  requestAnimationFrame(loop)}
- loop()})();
-function countUp(){if(REDUCED)return;document.querySelectorAll('.stat b').forEach(b=>{const m=b.textContent.match(/^(\d+)(%?)$/);if(!m)return;
- const n=+m[1],t0=performance.now();b.textContent='0'+m[2];
- const step=t=>{const p=Math.min(1,(t-t0)/700),e=1-Math.pow(1-p,3);b.textContent=Math.round(n*e)+m[2];if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step)})}
-function confetti(n=80){if(REDUCED)return;const c=$('#confetti'),x=c.getContext('2d'),cols=['#f0b429','#3fcfae','#8b5cf6','#2b8bd9','#ff6b84'];c.width=innerWidth;c.height=innerHeight;
- const P=Array.from({length:n},()=>({x:innerWidth/2+(Math.random()-.5)*140,y:innerHeight*.4,vx:(Math.random()-.5)*11,vy:-Math.random()*11-3,s:Math.random()*7+4,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[Math.random()*5|0]}));
- let f=0;(function loop(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);x.restore()});
-  if(++f<120)requestAnimationFrame(loop);else x.clearRect(0,0,c.width,c.height)})()}
+/* ---------- start ---------- */
+if(SB_URL.startsWith('YOUR_')){$('#app').innerHTML='<div class="auth card"><h2>Almost there</h2><p class="mut">Open <b>index.html</b> in a text editor and paste your Supabase URL and anon key at the top of the script.</p></div>'}
+else{sb=supabase.createClient(SB_URL,SB_KEY);
+ sb.auth.onAuthStateChange((ev,s)=>{if(ev==='TOKEN_REFRESHED'||ev==='USER_UPDATED')return;if(s&&me&&me.id===s.user.id)return;setTimeout(()=>boot(s),0)})}
 
-/* ============ 2. Data layer (Supabase) ============ */
-let C={me:null,users:[],tasks:[],subs:{}},lastRaw='',busy=null;
-const nameOf=u=>(u.user_metadata&&(u.user_metadata.full_name||u.user_metadata.name))||(u.email||'Student').split('@')[0];
-const friendly=m=>/invalid login/i.test(m)?'Email or password is incorrect.':/not confirmed/i.test(m)?'Confirm your email first (check your inbox), then log in.':/mime|not supported|invalid/i.test(m)&&/mime/i.test(m)?'That file type is not supported. Use photos, videos, PDFs, Office files, text or zip.':/exceeded|too large|maximum/i.test(m)?`Each file must be under ${MAXMB} MB.`:m;
-const refresh=()=>busy||(busy=doRefresh().finally(()=>{busy=null}));
-async function doRefresh(){
- const {data:{session}}=await sb.auth.getSession();
- if(!session){const ch=!!C.me;C={me:null,users:[],tasks:[],subs:{}};lastRaw='';return ch}
- const au=session.user;let pr=await sb.from('profiles').select('id,name,role,pet');if(pr.error)return false;
- let me=pr.data.find(p=>p.id===au.id);
- if(!me){const want=(au.user_metadata&&au.user_metadata.role)||LS.get('role','student'),role=want==='instructor'?'instructor':'student';
-  let ins=await sb.from('profiles').insert({id:au.id,name:nameOf(au),role}).select('id,name,role,pet').single();
-  if(ins.error&&ins.error.code==='23505')ins=await sb.from('profiles').select('id,name,role,pet').eq('id',au.id).single();
-  if(ins.error){S.err='Instructor accounts are limited to approved emails.';await sb.auth.signOut();C={me:null,users:[],tasks:[],subs:{}};return true}
-  me=ins.data;pr.data.push(me)}
- const [t,s,p]=await Promise.all([sb.from('tasks').select('*'),sb.from('subs').select('*'),sb.from('progress').select('*')]);
- const subs={};
- (p.data||[]).forEach(x=>subs[x.task_id+':'+x.student_id]={kind:x.kind,at:new Date(x.at).getTime()});
- (s.data||[]).forEach(x=>subs[x.task_id+':'+x.student_id]={kind:x.kind,at:new Date(x.at).getTime(),note:x.note,files:x.files||[]});
- const tasks=(t.data||[]).map(x=>({id:x.id,owner:x.owner,title:x.title,type:x.type,course:x.course,desc:x.descr,due:x.due,files:x.files||[]}));
- const next={me,users:pr.data,tasks,subs},raw=JSON.stringify(next),ch=raw!==lastRaw;lastRaw=raw;C=next;return ch}
+function authView(mode){
+ $('#app').innerHTML=`<div class="auth card"><h1>🌱 Study Space</h1><p class="mut">Keep every deadline in sight and grow a plant as you finish tasks.</p>
+ <button class="btn g" id="goog">Continue with Google</button><div class="or">or use email</div>
+ <form id="af">${mode==='up'?`<input name="name" placeholder="Full name" required><select name="role"><option value="student">I'm a student</option><option value="instructor">I'm an instructor</option></select>`:''}
+ <input name="email" type="email" placeholder="Email" required><input name="password" type="password" minlength="6" placeholder="Password (6+ characters)" required>
+ <button class="btn p" style="width:100%">${mode==='up'?'Create account':'Sign in'}</button></form>
+ <p><a href="#" id="sw">${mode==='up'?'Have an account? Sign in':'New here? Create an account'}</a></p></div>`;
+ $('#sw').onclick=e=>{e.preventDefault();authView(mode==='up'?'in':'up')};
+ $('#goog').onclick=async()=>{const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});if(error)toast(error.message,1)};
+ $('#af').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target),em=f.get('email'),pw=f.get('password');
+  const r=mode==='up'?await sb.auth.signUp({email:em,password:pw,options:{data:{name:f.get('name'),role:f.get('role')}}}):await sb.auth.signInWithPassword({email:em,password:pw});
+  if(r.error)return toast(r.error.message,1);
+  if(mode==='up'&&!r.data.session)toast('Check your email to confirm your account, then sign in.')}
+}
+function roleView(u){
+ const n=u.user_metadata?.name||u.user_metadata?.full_name||'';
+ $('#app').innerHTML=`<div class="auth card"><h2>Welcome! One last step</h2><form id="rf"><input name="name" value="${esc(n)}" placeholder="Full name" required><select name="role"><option value="student">I'm a student</option><option value="instructor">I'm an instructor</option></select><button class="btn p" style="width:100%">Continue</button></form><p><a href="#" id="lo">Sign out</a></p></div>`;
+ $('#lo').onclick=e=>{e.preventDefault();sb.auth.signOut()};
+ $('#rf').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await mkProfile(u,f.get('name'),f.get('role'))}
+}
+async function mkProfile(u,name,role){
+ const{error}=await sb.from('profiles').insert({id:u.id,name,email:u.email,role});
+ if(error)return toast(error.message,1);
+ const{data}=await sb.auth.getSession();boot(data.session)
+}
+async function boot(s){
+ if(!s){me=null;return authView('in')}
+ const u=s.user,{data:p}=await sb.from('profiles').select('*').eq('id',u.id).maybeSingle();
+ if(!p){const m=u.user_metadata||{};return m.role?mkProfile(u,m.name||u.email,m.role):roleView(u)}
+ me=p;await load();app();alerts();
+ clearInterval(window._t);window._t=setInterval(async()=>{await load();alerts();if(!document.querySelector('.ov'))app()},30000)
+}
+async function load(){
+ const[t,s,p]=await Promise.all([sb.from('tasks').select('*'),sb.from('submissions').select('*'),sb.from('profiles').select('*')]);
+ tasks=t.data||[];subs=s.data||[];people=p.data||[];me=people.find(x=>x.id===me.id)||me
+}
 
-const UserService={all:()=>C.users,me:()=>C.me,
- async register({name,email,password,role}){LS.set('role',role);
-  const r=await sb.auth.signUp({email,password,options:{data:{full_name:name,role}}});
-  if(r.error)return{error:friendly(r.error.message)};
-  if(r.data.user&&r.data.user.identities&&r.data.user.identities.length===0)return{error:'That email already has an account. Log in instead.'};
-  if(!r.data.session)return{notice:'Account created. Check your email for a confirmation link, then log in.'};
-  return signedIn()},
- async login(email,password){const r=await sb.auth.signInWithPassword({email,password});if(r.error)return{error:friendly(r.error.message)};return signedIn()},
- async google(){LS.set('role',S.role);const r=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});return r.error?{error:friendly(r.error.message)}:{}},
- async logout(){await sb.auth.signOut();C={me:null,users:[],tasks:[],subs:{}};lastRaw=''}};
-async function signedIn(){await refresh();return C.me?{}:{error:S.err||'Could not sign in. Try again.'}}
+/* ---------- helpers ---------- */
+const mySubs=()=>Object.fromEntries(subs.filter(s=>s.student_id===me.id).map(s=>[s.task_id,s]));
+const byDue=(a,b)=>new Date(a.deadline||'9999')-new Date(b.deadline||'9999');
+function ranks(){
+ const st=people.filter(p=>p.role==='student').sort((a,b)=>b.done-a.done||b.xp-a.xp||(a.name||'').localeCompare(b.name||'')),r={};let i=0;
+ st.forEach(p=>{if(p.done===0)r[p.id]='Warrior';else r[p.id]=RANKS[Math.floor(i++/3)]||'Elite'});
+ return{list:st,r}
+}
+function left(t){const d=new Date(t.deadline)-Date.now(),a=Math.abs(d),h=Math.floor(a/36e5),dy=Math.floor(h/24);
+ const s=dy?`${dy}d ${h%24}h`:h?`${h}h ${Math.floor(a%36e5/6e4)}m`:`${Math.max(1,Math.floor(a/6e4))}m`;return d<0?`<span class="late">overdue by ${s}</span>`:`in ${s}`}
 
-const TYPES={quiz:{l:'Quiz',pl:'Quizzes',c:'#8b5cf6'},assignment:{l:'Assignment',pl:'Assignments',c:'#2b8bd9'},activity:{l:'Activity',pl:'Activities',c:'#e0a100'},personal:{l:'Personal',pl:'Personal',c:'#12a679'}};
-const TaskService={all:()=>C.tasks,
- forUser:u=>TaskService.all().filter(t=>u.role==='instructor'?t.owner===u.id:(t.type!=='personal'||t.owner===u.id)),
- sorted:l=>[...l].sort((a,b)=>new Date(a.due)-new Date(b.due))};
-const SubmissionService={all:()=>C.subs,get:(tid,sid)=>SubmissionService.all()[tid+':'+sid],isDone:(tid,sid)=>!!SubmissionService.get(tid,sid)};
+/* ---------- views ---------- */
+function app(){
+ const ins=me.role==='instructor',R=ranks();
+ $('#app').innerHTML=`<header><b class="logo">🌱 Study Space</b><nav>${[['tasks',ins?'Dashboard':'My tasks'],['board','Leaderboard']].map(([k,l])=>`<button class="tab ${tab===k?'on':''}" data-tab="${k}">${l}</button>`).join('')}</nav>
+ <div class="right"><button class="ic" data-act="bell" aria-label="Notifications">🔔${notes.length?`<span class="dot">${notes.length}</span>`:''}</button><span class="mut">${esc(me.name)} (${me.role})</span><button class="btn s" data-act="out">Sign out</button></div></header>
+ <main>${tab==='board'?board(R):ins?instr(R):stud(R)}</main>`
+}
+function taskCard(t,sub){
+ const own=t.owner_id===me.id;
+ return`<div class="card task ${sub?'done':''}"><div><span class="badge ${t.kind}">${KINDS[t.kind]}</span><b>${esc(t.title)}</b>
+ <div class="mut">${esc(t.description)}</div><div>Due ${fd(t.deadline)} · ${sub?'':left(t)}${t.max_score?` · max ${t.max_score} pts`:''} ${link(t.file_url,t.file_name)}</div>
+ ${sub?`<div style="color:var(--g)">✅ Completed ${fd(sub.submitted_at)} · +${sub.xp} XP${sub.early?' (early bonus!)':''}${sub.score!=null?` · Score: ${sub.score}${t.max_score?'/'+t.max_score:''}`:''} ${link(sub.file_url,sub.file_name)}</div>`:''}</div>
+ <div class="acts">${me.role==='student'?(sub?`<button class="btn s" data-act="undo" data-id="${sub.id}">Undo</button>`:`<button class="btn p s" data-act="done" data-id="${t.id}">Complete</button>`):''}
+ ${own?`<button class="btn s" data-act="edit" data-id="${t.id}">Edit</button><button class="btn s d" data-act="del" data-id="${t.id}">Delete</button>`:''}</div></div>`
+}
+function stud(R){
+ const my=mySubs(),set=PLANTS[me.plant]||PLANTS.tree,lvl=Math.floor(me.done/3),pr=me.done%3;
+ const list=tasks.filter(t=>flt==='all'||(flt==='done')===!!my[t.id]).sort(byDue),next=tasks.filter(t=>!my[t.id]&&new Date(t.deadline)>Date.now()).sort(byDue)[0];
+ return`<div class="grid"><div class="card plant"><div class="em" style="font-size:${60+Math.min(lvl,5)*12}px">${set[Math.min(lvl,5)]}</div>
+ <h3>Level ${lvl+1}</h3><div class="bar"><b style="width:${pr/3*100}%"></b></div><div class="mut">${pr}/3 tasks to next level</div>
+ <label>Your companion<select data-plant>${Object.keys(PLANTS).map(k=>`<option value="${k}" ${me.plant===k?'selected':''}>${PLANTS[k][5]} ${k}</option>`).join('')}</select></label></div>
+ <div><div class="stats"><div class="card"><b>${me.done}</b>completed</div><div class="card"><b>${me.xp}</b>XP</div><div class="card"><b style="font-size:16px">${R.r[me.id]||'Warrior'}</b>your rank</div></div>
+ <div class="card">${next?`<b>Up next:</b> ${esc(next.title)} · due ${fd(next.deadline)} (${left(next)})`:'🎉 Nothing due soon. Add a personal task to plan ahead.'}</div></div></div>
+ <div class="tools">${['pending','done','all'].map(f=>`<button class="tab ${flt===f?'on':''}" data-flt="${f}">${f[0].toUpperCase()+f.slice(1)}</button>`).join('')}<span class="sp"></span><button class="btn p" data-act="new">+ Personal task</button></div>
+ ${list.map(t=>taskCard(t,my[t.id])).join('')||'<div class="card mut">No tasks here yet.</div>'}`
+}
+function instr(R){
+ const mine=tasks.filter(t=>t.owner_id===me.id&&t.kind!=='personal').sort(byDue),sts=R.list;
+ return`<div class="tools"><h2>Your tasks</h2><span class="sp"></span><button class="btn p" data-act="new">+ New activity / quiz</button></div>
+ ${mine.map(t=>{const ss=subs.filter(s=>s.task_id===t.id);return`<div class="card task" style="display:block"><div class="tools" style="margin:0"><div><span class="badge ${t.kind}">${KINDS[t.kind]}</span><b>${esc(t.title)}</b><div class="mut">Due ${fd(t.deadline)} · ${left(t)} ${link(t.file_url,t.file_name)}</div></div><span class="sp"></span>
+ <b>${ss.length}/${sts.length} done</b><button class="btn s" data-act="edit" data-id="${t.id}">Edit</button><button class="btn s d" data-act="del" data-id="${t.id}">Delete</button></div>
+ <div class="bar"><b style="width:${sts.length?ss.length/sts.length*100:0}%"></b></div>
+ <details><summary>Student progress</summary><table>${sts.map(p=>{const s=ss.find(x=>x.student_id===p.id);return`<tr><td>${esc(p.name)}</td><td>${s?`✅ ${fd(s.submitted_at)}${s.early?' (early)':''}`:'⏳ Pending'}</td><td>${s&&s.score!=null?'Score '+s.score:''}</td><td>${s?link(s.file_url,s.file_name):''} ${s?.note?`<span class="mut">“${esc(s.note)}”</span>`:''}</td></tr>`}).join('')||'<tr><td class="mut">No students yet.</td></tr>'}</table></details></div>`}).join('')||'<div class="card mut">Create your first activity, assignment, or quiz.</div>'}
+ <h2 style="margin-top:22px">Students</h2>${board(R)}`
+}
+function board(R){
+ return`<div class="card"><table><tr><th>#</th><th>Student</th><th>Rank</th><th>Done</th><th>XP</th></tr>${R.list.map((p,i)=>`<tr class="${p.id===me.id?'me':''}"><td>${i+1}</td><td>${esc(p.name)}</td><td>${R.r[p.id]}</td><td>${p.done}</td><td>${p.xp}</td></tr>`).join('')||'<tr><td class="mut">No students yet.</td></tr>'}</table></div>`
+}
 
-const PETS={plant:['🌰','🌱','🌿','🪴','🌳'],pet:['🥚','🦎','🐊','🐲','🐉']};
-const MAXLV=5,TIERS=['Codex Master','Wizard','Architect','Hacker'];
-const RANKS={'Newbie':{i:'⌨️',c:'#9a97c9'},'Coder':{i:'💻',c:'#12a679'},'Hacker':{i:'🕹️',c:'#8b5cf6'},'Architect':{i:'🧱',c:'#ff8a5c'},'Wizard':{i:'🧙',c:'#e0a100'},'Codex Master':{i:'👾',c:'#2b8bd9'}};
-const RewardService={
- doneList(sid,assignedOnly){const T=Object.fromEntries(TaskService.all().map(t=>[t.id,t]));
-  return Object.entries(SubmissionService.all()).filter(([k])=>k.endsWith(':'+sid)).map(([k,v])=>[T[k.split(':')[0]],v]).filter(([t])=>t&&(!assignedOnly||t.type!=='personal'))},
- done:sid=>RewardService.doneList(sid).length,
- level:n=>Math.min(MAXLV,Math.floor(n/3)+1),
- toNext:n=>n>=(MAXLV-1)*3?0:3-(n%3),
- choice:sid=>((C.users.find(u=>u.id===sid)||{}).pet)||'plant',
- ranks(){const rows=DashboardService.students().map(s=>{const l=RewardService.doneList(s.id,true);return{s,n:l.length,last:Math.max(0,...l.map(([,v])=>v.at))}}).sort((a,b)=>b.n-a.n||a.last-b.last);
-  let p=0;rows.forEach(r=>{if(r.n===0)r.rank='Newbie';else{r.rank=TIERS[Math.floor(p/3)]||'Coder';p++}});return rows},
- rankOf:sid=>RewardService.ranks().find(r=>r.s.id===sid)};
-const badge=r=>`<span class="rank" style="--r:${RANKS[r].c}">${RANKS[r].i} ${r}</span>`;
+/* ---------- forms ---------- */
+function taskForm(id){
+ const t=tasks.find(x=>x.id===id)||{},ins=me.role==='instructor';
+ modal(`<h3>${id?'Edit':'New'} ${ins?'task':'personal task'}</h3><form id="tf">${ins?`<label>Type<select name="kind">${['activity','assignment','quiz'].map(k=>`<option value="${k}" ${t.kind===k?'selected':''}>${KINDS[k]}</option>`).join('')}</select></label>`:''}
+ <input name="title" placeholder="Title" required value="${esc(t.title)}"><textarea name="description" placeholder="Description or instructions">${esc(t.description)}</textarea>
+ <label>Deadline<input name="deadline" type="datetime-local" required value="${t.deadline?loc(t.deadline):''}"></label>
+ <label>Max score (optional)<input name="max_score" type="number" min="0" value="${t.max_score??''}"></label>
+ <label>Attach a file ${t.file_name?`(current: ${esc(t.file_name)})`:''}<input name="file" type="file"></label><button class="btn p">Save task</button></form>`);
+ $('#tf').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target),b=e.submitter;b.disabled=true;
+  try{const row={title:f.get('title'),description:f.get('description'),deadline:new Date(f.get('deadline')).toISOString(),max_score:f.get('max_score')?+f.get('max_score'):null,kind:ins?f.get('kind'):'personal',...await up(f.get('file'))};
+   const r=id?await sb.from('tasks').update(row).eq('id',id):await sb.from('tasks').insert({...row,owner_id:me.id});
+   if(r.error)throw r.error;close();await load();app();toast('Task saved')}catch(x){toast(x.message,1);b.disabled=false}}
+}
+function doneForm(id){
+ const t=tasks.find(x=>x.id===id);
+ modal(`<h3>Complete: ${esc(t.title)}</h3><form id="df"><label>Your score${t.max_score?` (max ${t.max_score})`:''}<input name="score" type="number" step="any" min="0" ${t.max_score?`max="${t.max_score}"`:''} placeholder="optional"></label>
+ <textarea name="note" placeholder="Note for your instructor (optional)"></textarea><label>Attach your work<input name="file" type="file"></label><button class="btn p">Mark as completed</button></form>`);
+ $('#df').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target),b=e.submitter;b.disabled=true;
+  try{const was=Math.floor(me.done/3),sc=f.get('score');
+   const{data,error}=await sb.from('submissions').insert({task_id:id,student_id:me.id,score:sc===''?null:+sc,note:f.get('note')||null,...await up(f.get('file'))}).select().single();
+   if(error)throw error;close();await load();app();
+   toast(Math.floor(me.done/3)>was?`🌱 Level up! Your companion grew (+${data.xp} XP)`:`Task completed +${data.xp} XP${data.early?' (early bonus!)':''}`)}catch(x){toast(x.message,1);b.disabled=false}}
+}
 
-const NotificationService={
- log:sid=>LS.get('notes_'+sid,[]),
- beep(){try{const c=new(window.AudioContext||window.webkitAudioContext)();[0,.22,.44].forEach(t=>{const o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start(c.currentTime+t);o.stop(c.currentTime+t+.12)})}catch{}},
- active(u){return TaskService.sorted(TaskService.forUser(u).filter(t=>!SubmissionService.isDone(t.id,u.id)&&new Date(t.due)-Date.now()<=864e5))},
- tick(u){if(!u||u.role!=='student')return;
-  const seen=LS.get('fired_'+u.id,{}),log=NotificationService.log(u.id);let fired=false;
-  TaskService.forUser(u).filter(t=>!SubmissionService.isDone(t.id,u.id)).forEach(t=>{const ms=new Date(t.due)-Date.now();
-   [['before',ms<=864e5&&ms>0,'Due within 24 hours'],['due',ms<=0&&ms>-36e5,'Deadline reached']].forEach(([k,hit,msg])=>{const key=t.id+k;
-    if(hit&&!seen[key]){seen[key]=1;fired=true;log.unshift({title:t.title,msg,at:Date.now(),k});try{if(Notification.permission==='granted')new Notification('Study Space: '+t.title,{body:msg})}catch{}}})});
-  if(fired){LS.set('fired_'+u.id,seen);LS.set('notes_'+u.id,log.slice(0,40));S.barOff=false;NotificationService.beep();render()}}};
-function barHTML(u){if(u.role!=='student'||S.barOff)return'';const a=NotificationService.active(u);if(!a.length)return'';const late=a.some(t=>new Date(t.due)<=Date.now());
- return`<div class="nbar ${late?'due':''}" role="alert"><b>⏰</b><span><b>${a.length} task${a.length>1?'s':''} need${a.length>1?'':'s'} attention:</b> ${esc(a[0].title)} (${rel(a[0].due)})${a.length>1?' and '+(a.length-1)+' more':''}</span><button onclick="S.barOff=true;render()" aria-label="Dismiss">✕</button></div>`}
-const DashboardService={
- student(u){const l=TaskService.forUser(u),p=l.filter(t=>!SubmissionService.isDone(t.id,u.id));
-  return{done:l.length-p.length,pending:p.length,today:p.filter(t=>new Date(t.due).toDateString()===new Date().toDateString()).length,late:p.filter(t=>new Date(t.due)<Date.now()).length,next:TaskService.sorted(p).slice(0,3)}},
- students:()=>UserService.all().filter(u=>u.role==='student')};
+/* ---------- alarm reminders ---------- */
+function beep(n=3){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();for(let i=0;i<n;i++){const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+i*.4;o.type='square';o.frequency.value=i%2?740:988;g.gain.value=.08;o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+.25)}}catch{}}
+function ring(m){notes.unshift({m,at:new Date()});let b=$('#alarm');if(!b){b=document.createElement('div');b.id='alarm';document.body.append(b)}
+ b.innerHTML=`<span>${esc(m)}</span><button class="btn s" onclick="this.parentNode.remove()">Dismiss</button>`;beep()}
+function alerts(){
+ if(!me||me.role!=='student')return;
+ const my=mySubs(),k='ss_f_'+me.id,f=JSON.parse(localStorage[k]||'{}'),now=Date.now();
+ tasks.forEach(t=>{if(!t.deadline||my[t.id])return;const d=new Date(t.deadline)-now;
+  const st=d<=0&&d>-36e5?'due':d>0&&d<=36e5?'h1':d>36e5&&d<=864e5?'d1':null;if(!st||f[t.id+st])return;f[t.id+st]=1;
+  ring(st==='due'?`⏰ Deadline now: ${t.title}`:st==='h1'?`⚠️ Due in under an hour: ${t.title}`:`📌 Due within 24 hours: ${t.title}`)});
+ localStorage[k]=JSON.stringify(f);if(notes.length)app()
+}
 
-/* ============ 3. Files (private storage + signed links) ============ */
-const URLS={},cachedUrl=p=>URLS[p]&&URLS[p].exp>Date.now()?URLS[p].u:'';
-async function hydrate(){const els=[...document.querySelectorAll('[data-path]')].filter(e=>!e.dataset.done);
- const need=[...new Set(els.map(e=>e.dataset.path).filter(p=>!cachedUrl(p)))];
- if(need.length){const {data}=await sb.storage.from(BUCKET).createSignedUrls(need,3600);(data||[]).forEach(d=>{if(d.signedUrl)URLS[d.path]={u:d.signedUrl,exp:Date.now()+3e6}})}
- els.forEach(e=>{const u=cachedUrl(e.dataset.path);if(!u)return;if(e.tagName==='A')e.href=u;else e.src=u;e.dataset.done=1})}
-const ACCEPT='image/jpeg,image/png,image/gif,image/webp,image/heic,video/mp4,video/webm,video/quicktime,audio/mpeg,audio/wav,audio/mp4,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip';
-const isImg=f=>/\.(jpe?g|png|gif|webp)$/i.test(f.name),isVid=f=>/\.(mp4|webm|mov|m4v)$/i.test(f.name);
-const sizeOf=n=>n<1048576?Math.max(1,Math.round(n/1024))+' KB':(n/1048576).toFixed(1)+' MB';
-function filesHTML(files){if(!files||!files.length)return'';
- const media=files.filter(f=>isImg(f)||isVid(f)),rest=files.filter(f=>!isImg(f)&&!isVid(f)),att=f=>{const u=cachedUrl(f.path);return`data-path="${esc(f.path)}"`+(u?` data-done="1"`:'')};
- const src=f=>{const u=cachedUrl(f.path);return u?` src="${u}"`:''},href=f=>{const u=cachedUrl(f.path);return u?` href="${u}"`:''};
- return(media.length?`<div class="media">${media.map(f=>isImg(f)?`<a ${att(f)}${href(f)} target="_blank" rel="noopener"><img ${att(f)}${src(f)} alt="${esc(f.name)}" loading="lazy"></a>`:`<video ${att(f)}${src(f)} controls preload="metadata" playsinline></video>`).join('')}</div>`:'')
- +(rest.length?`<div class="meta">${rest.map(f=>`<a ${att(f)}${href(f)} target="_blank" rel="noopener">📎 ${esc(f.name)} (${sizeOf(f.size)})</a>`).join('')}</div>`:'')}
-function fileError(input){const big=[...input.files].find(f=>f.size>MAXMB*1048576);return input.files.length>10?'Choose 10 files or fewer at a time.':big?`"${big.name}" is over ${MAXMB} MB. Choose a smaller file.`:''}
-const removeFiles=l=>l&&l.length?sb.storage.from(BUCKET).remove(l.map(f=>f.path)):null;
-async function uploadAll(files){const out=[],up=$('#up');if(up&&files.length)up.hidden=false;
- for(let i=0;i<files.length;i++){const f=files[i],m=$('#upmsg'),b=$('#up i');if(m)m.textContent=`Uploading ${i+1} of ${files.length}…`;if(b)b.style.width=Math.round(i/files.length*100)+'%';
-  const path=`${C.me.id}/${crypto.randomUUID()}-${f.name.replace(/[^\w.\-]+/g,'_')}`;
-  const {error}=await sb.storage.from(BUCKET).upload(path,f,{contentType:f.type||'application/octet-stream'});
-  if(error){await removeFiles(out);return{error:friendly(error.message)}}
-  out.push({path,name:f.name,type:f.type,size:f.size})}
- const b=$('#up i');if(b)b.style.width='100%';return{files:out}}
-
-/* ============ 4. UI ============ */
-let S={view:'dashboard',last:null,filter:'all',hideDone:false,mode:'login',role:'student',err:'',notice:'',barOff:false};
-const fmt=d=>new Date(d).toLocaleString([], {weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
-function rel(d){const ms=new Date(d)-Date.now(),a=Math.abs(ms),m=Math.round(a/6e4),h=Math.round(a/36e5),dd=Math.round(a/864e5);const t=m<60?m+' min':h<48?h+' hr':dd+' days';return ms<0?'overdue by '+t:'due in '+t}
-const urg=d=>{const ms=new Date(d)-Date.now();return ms<0?'late':ms<864e5?'soon':''};
-const go=v=>{S.view=v;render()};
-const dlg=()=>$('#dlg');dlg().addEventListener('close',()=>{dlg().innerHTML=''});
-function toast(h,bad){const el=document.createElement('div');el.className='toast'+(bad?' bad':'');el.innerHTML=bad?`<b>Something went wrong</b>${esc(h)}`:h;$('#toasts').append(el);setTimeout(()=>el.remove(),4000)}
-
-function render(){const u=UserService.me();
- if(!u){S.last=null;$('#root').innerHTML=loginView();return}
- const nav=u.role==='student'?[['dashboard','🏠','Home'],['tasks','📋','Tasks'],['garden','🌱','Garden'],['ranks','🏆','Ranks']]:[['dashboard','🏠','Home'],['tasks','📋','Tasks'],['monitor','📊','Progress'],['ranks','🏆','Ranks']];
- if(!nav.some(n=>n[0]===S.view))S.view='dashboard';
- const v={dashboard:u.role==='student'?studentHome:instructorHome,tasks:tasksView,garden:gardenView,monitor:monitorView,ranks:ranksView}[S.view](u);
- const enter=S.last!==S.view;S.last=S.view;
- const stu=u.role==='student',n=RewardService.done(u.id),me=stu&&RewardService.rankOf(u.id);
- const chips=stu?`<span class="chip2">⭐ Lv ${RewardService.level(n)}</span><span class="chip2">✅ ${n}</span>${badge(me?me.rank:'Newbie')}<button class="bell" onclick="showNotes()" aria-label="Reminders">🔔<em>${NotificationService.log(u.id).length}</em></button>`
-  :`<span class="chip2">👩‍🏫 Instructor</span><span class="chip2">📝 ${TaskService.forUser(u).length} tasks</span>`;
- $('#root').innerHTML=`<div class="app"><aside><div class="brand">📚 Study Space</div>
-  ${nav.map(x=>`<button class="nav ${S.view===x[0]?'on':''}" onclick="go('${x[0]}')">${x[1]} ${x[2]}</button>`).join('')}
-  <div class="who"><b>${esc(u.name)}</b><br>${stu?'Student':'Instructor'}<br><button class="btn ghost sm" style="margin-top:.6rem" onclick="logout()">Log out</button></div></aside>
-  <div class="col"><header class="topbar"><div class="tt">${nav.find(x=>x[0]===S.view)[2]}</div><div class="chips">${chips}</div></header>
-  <main class="${enter?'enter':''}">${barHTML(u)}${v}</main></div></div>`;
- if(enter)countUp();hydrate()}
-
-/* ---- Login (Google + email only) ---- */
-const GLOGO=`<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>`;
-function loginView(){if(!READY)return setupView();const reg=S.mode==='register';
- return`<div class="login"><div class="card"><h1>📚 Study Space</h1><p style="color:var(--mute);margin:.8rem 0 0">Know what's due next. Level up while you do it.</p>
- <div class="seg"><button class="tab ${S.role==='student'?'on':''}" onclick="S.role='student';render()">Student</button><button class="tab ${S.role==='instructor'?'on':''}" onclick="S.role='instructor';render()">Instructor</button></div>
- <div style="margin-top:.8rem"><button class="btn ghost" style="width:100%" onclick="doGoogle()">${GLOGO} Continue with Google</button></div><div class="or">or use email</div>
- ${reg?`<label for="nm">Full name</label><input id="nm" autocomplete="name">`:''}
- <label for="em">Email</label><input id="em" type="email" autocomplete="email"><label for="pw">Password</label><input id="pw" type="password" autocomplete="${reg?'new':'current'}-password">
- <div class="err" role="alert">${esc(S.err)}</div>${S.notice?`<div class="note">${esc(S.notice)}</div>`:''}
- <button class="btn" style="width:100%;margin-top:.6rem" onclick="${reg?'doRegister()':'doLogin()'}">${reg?'Create account':'Log in'}</button>
- <p style="text-align:center;margin:1rem 0 0"><button class="tab" onclick="S.mode='${reg?'login':'register'}';S.err='';S.notice='';render()">${reg?'I have an account':'Create account'}</button></p></div></div>`}
-function setupView(){return`<div class="login"><div class="card setup"><h1>📚 Almost there</h1><p style="color:var(--mute)">Connect Study Space to your Supabase project:</p>
- <ol><li>Open this file and find <code>SUPABASE_URL</code> and <code>SUPABASE_KEY</code> near the top of the script.</li><li>Paste your project URL and anon public key (Supabase → Project Settings → API).</li><li>Save, redeploy, and reload this page.</li></ol></div></div>`}
-async function doGoogle(){const r=await UserService.google();if(r.error){S.err=r.error;render()}}
-async function doLogin(){S.err='';S.notice='';const r=await UserService.login($('#em').value.trim(),$('#pw').value);r.error?(S.err=r.error,render()):afterLogin()}
-async function doRegister(){S.err='';S.notice='';const name=$('#nm').value.trim(),email=$('#em').value.trim(),password=$('#pw').value;
- if(!name||!/^\S+@\S+\.\S+$/.test(email)||password.length<6){S.err='Enter your name, a valid email, and a password of 6+ characters.';render();return}
- const r=await UserService.register({name,email,password,role:S.role});r.error?(S.err=r.error,render()):r.notice?(S.notice=r.notice,S.mode='login',render()):afterLogin()}
-function afterLogin(){S.err='';S.notice='';S.view='dashboard';S.last=null;try{Notification.requestPermission()}catch{}render();NotificationService.tick(UserService.me())}
-async function logout(){await UserService.logout();render()}
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('#em,#pw,#nm'))(S.mode==='register'?doRegister:doLogin)()});
-
-/* ---- Student home ---- */
-function studentHome(u){const s=DashboardService.student(u),n=RewardService.done(u.id),lv=RewardService.level(n),c=RewardService.choice(u.id),nx=RewardService.toNext(n),rk=(RewardService.rankOf(u.id)||{}).rank||'Newbie';
- return`<div class="hero"><div class="emblem" style="--r:${RANKS[rk].c}"><span>${RANKS[rk].i}</span></div>
- <div class="hinfo"><small>Welcome back</small><h2>${esc(u.name)}</h2>${badge(rk)}
- <div class="xp"><div class="bar"><i style="width:${nx?Math.round((3-nx)/3*100):100}%"></i></div><small>Level ${lv} · ${nx?`${nx} task${nx>1?'s':''} to next level`:'Max level'}</small></div></div>
- <div class="pethero">${PETS[c][lv-1]}</div></div>
- <div class="grid g3"><div class="card stat"><i class="ico">📌</i><b>${s.pending}</b><span>To do</span></div><div class="card stat"><i class="ico">🔥</i><b style="color:var(--hot)">${s.late}</b><span>Overdue</span></div><div class="card stat"><i class="ico">🏅</i><b>${s.done}</b><span>Completed</span></div></div>
- <div class="grid g2" style="margin-top:1rem"><div class="card pet"><div class="big">${PETS[c][lv-1]}</div><div><h3>Your ${c==='plant'?'plant':'pet'}</h3><p style="margin:.5rem 0 .6rem;color:var(--mute)">${s.today?`${s.today} task${s.today>1?'s':''} due today.`:'Nothing due today.'}</p><button class="btn sm" onclick="go('garden')">Open garden</button></div></div>
- <div class="card"><h3 style="margin-bottom:.8rem">Leaderboard</h3><p style="color:var(--mute);margin:0 0 .6rem">Complete assigned tasks to climb the ranks.</p><button class="btn sm" onclick="go('ranks')">See ranks</button></div></div>
- <div class="card" style="margin-top:1rem"><h3 style="margin-bottom:.8rem">Up next</h3>${s.next.length?s.next.map(t=>`<div style="display:flex;justify-content:space-between;gap:.6rem;padding:.45rem 0;border-bottom:1px solid var(--line)"><span><span class="chip" style="--c:${TYPES[t.type].c}">${TYPES[t.type].l}</span> ${esc(t.title)}</span><span class="due ${urg(t.due)}">${rel(t.due)}</span></div>`).join(''):'<div class="empty"><div class="e">🎉</div>Nothing pending.</div>'}</div>`}
-function instructorHome(u){const l=TaskService.forUser(u),sts=DashboardService.students(),up=TaskService.sorted(l.filter(t=>new Date(t.due)>Date.now())).slice(0,4);
- const comp=l.reduce((a,t)=>a+sts.filter(s=>SubmissionService.isDone(t.id,s.id)).length,0),tot=l.length*sts.length;
- return`<div class="top"><div><h2>Hello, ${esc(u.name.split(' ')[0])}</h2><p>Here's how your classes are doing.</p></div><button class="btn" onclick="taskDialog()">+ New task</button></div>
- <div class="grid g3"><div class="card stat"><i class="ico">📝</i><b>${l.length}</b><span>Tasks created</span></div><div class="card stat"><i class="ico">🧑‍🎓</i><b>${sts.length}</b><span>Students</span></div><div class="card stat"><i class="ico">📈</i><b>${tot?Math.round(comp/tot*100):0}%</b><span>Completion</span></div></div>
- <div class="card" style="margin-top:1rem"><h3 style="margin-bottom:.8rem">Coming up</h3>${up.length?up.map(t=>`<div style="display:flex;justify-content:space-between;padding:.45rem 0;border-bottom:1px solid var(--line)"><span><span class="chip" style="--c:${TYPES[t.type].c}">${TYPES[t.type].l}</span> ${esc(t.title)}</span><span class="due">${fmt(t.due)}</span></div>`).join(''):'<div class="empty"><div class="e">📝</div>Create your first quiz or assignment.</div>'}</div>`}
-
-/* ---- Tasks ---- */
-function tasksView(u){const stu=u.role==='student';let l=TaskService.sorted(TaskService.forUser(u));
- if(S.filter!=='all')l=l.filter(t=>t.type===S.filter);if(stu&&S.hideDone)l=l.filter(t=>!SubmissionService.isDone(t.id,u.id));
- const tabs=['all',...(stu?Object.keys(TYPES):['quiz','assignment','activity'])];
- return`<div class="top"><div><h2>${stu?'All tasks':'My tasks'}</h2><p>Sorted by nearest deadline.</p></div><button class="btn" onclick="taskDialog()">+ ${stu?'Personal task':'New task'}</button></div>
- <div class="tabs">${tabs.map(f=>`<button class="tab ${S.filter===f?'on':''}" onclick="S.filter='${f}';render()">${f==='all'?'All':TYPES[f].pl}</button>`).join('')}${stu?`<button class="tab ${S.hideDone?'on':''}" onclick="S.hideDone=!S.hideDone;render()">Hide completed</button>`:''}</div>
- ${l.length?l.map(t=>taskCard(t,u)).join(''):'<div class="card empty"><div class="e">📭</div>No tasks here yet.</div>'}`}
-function taskCard(t,u){const stu=u.role==='student',sub=stu&&SubmissionService.get(t.id,u.id),own=t.owner===u.id,ty=TYPES[t.type];
- const sts=DashboardService.students(),dn=sts.filter(s=>SubmissionService.isDone(t.id,s.id)).length;let acts='';
- if(stu){acts=sub?`<span class="chip" style="--c:var(--ok)">${sub.kind==='submitted'?'Submitted':'Completed'}</span><button class="btn ghost sm" onclick="undo('${t.id}')">Undo</button>`
-  :(t.type==='assignment'?`<button class="btn sm" onclick="submitDialog('${t.id}')">Submit</button><button class="btn ghost sm" onclick="complete('${t.id}')">Mark done</button>`:`<button class="btn sm" onclick="complete('${t.id}')">Mark done</button>`)}
- else acts=`<span class="meta">${dn}/${sts.length} done</span>`;
- if(own)acts+=`<button class="btn ghost sm" onclick="taskDialog('${t.id}')">Edit</button><button class="btn danger sm" onclick="removeTask('${t.id}')">Delete</button>`;
- return`<div class="card task ${sub?'done':''}" style="--c:${ty.c}"><div class="stripe"></div><div><h3>${esc(t.title)}</h3>
- <div class="meta"><span class="chip" style="--c:${ty.c}">${ty.l}</span>${t.course?`<span>${esc(t.course)}</span>`:''}<span class="due ${sub?'':urg(t.due)}">${sub?fmt(t.due):rel(t.due)+' · '+fmt(t.due)}</span></div>${t.desc?`<div class="meta">${esc(t.desc)}</div>`:''}
- ${filesHTML(t.files)}${sub&&sub.note?`<div class="meta">Your note: ${esc(sub.note)}</div>`:''}${sub?filesHTML(sub.files):''}</div><div class="acts">${acts}</div></div>`}
-
-/* ---- Garden ---- */
-function gardenView(u){const n=RewardService.done(u.id),c=RewardService.choice(u.id),lv=RewardService.level(n),nx=RewardService.toNext(n);
- return`<div class="top"><div><h2>Your garden</h2><p>Every 3 completed tasks = 1 level.</p></div></div>
- <div class="card pet" style="flex-direction:column;text-align:center;padding:2rem"><div class="big" style="font-size:7rem">${PETS[c][lv-1]}</div><h3>Level ${lv} / ${MAXLV}</h3>
- <div style="width:min(320px,100%)"><div class="bar"><i style="width:${nx?Math.round((3-nx)/3*100):100}%"></i></div><p style="margin:.5rem 0 0;color:var(--mute)">${nx?`${nx} more task${nx>1?'s':''} to level up`:'Fully grown!'} · ${n} done</p></div>
- <div class="stages">${PETS[c].map((e,i)=>`<span class="${i<lv?'got':''}">${e}</span>`).join('')}</div></div>
- <div class="card" style="margin-top:1rem"><h3 style="margin-bottom:.8rem">Choose what to grow</h3><div class="pick"><button class="${c==='plant'?'on':''}" onclick="pickPet('plant')">🌳 Plant</button><button class="${c==='pet'?'on':''}" onclick="pickPet('pet')">🐉 Dragon</button></div></div>`}
-async function pickPet(c){const r=await sb.from('profiles').update({pet:c}).eq('id',C.me.id);if(r.error)return toast(r.error.message,true);await refresh();render()}
-
-/* ---- Ranks ---- */
-function ranksView(u){const rows=RewardService.ranks(),top=rows.length>=3?[1,0,2].map(i=>[rows[i],i+1]):[];
- return`<div class="top"><div><h2>Leaderboard</h2><p>Ranked by completed tasks. Ties go to whoever finished first.</p></div></div>
- ${top.length?`<div class="podium">${top.map(([r,p])=>`<div class="pd p${p}" style="--r:${RANKS[r.rank].c}"><div class="em">${RANKS[r.rank].i}</div><b>${esc(r.s.name)}</b><small>${r.n} done</small><div class="blk">${p}</div></div>`).join('')}</div>`:''}
- <div class="card">${rows.length?rows.map((r,i)=>`<div class="row ${r.s.id===u.id?'me':''}"><div class="pos">${i+1}</div><b>${esc(r.s.name)}</b><span class="meta cnt">${r.n} done</span>${badge(r.rank)}</div>`).join(''):'<div class="empty"><div class="e">🏆</div>No students have joined yet.</div>'}</div>
- <div class="card" style="margin-top:1rem"><h3 style="margin-bottom:.8rem">How ranks work</h3><div class="meta" style="gap:.5rem">${TIERS.map((r,i)=>`${badge(r)} <span>#${i*3+1}–${i*3+3}</span>`).join('<br>')}<br>${badge('Coder')} <span>everyone else who completed a task</span><br>${badge('Newbie')} <span>no tasks completed yet</span></div></div>`}
-
-/* ---- Instructor monitor ---- */
-function monitorView(u){const l=TaskService.sorted(TaskService.forUser(u)),rk=RewardService.ranks();
- return`<div class="top"><div><h2>Student progress</h2><p>See who has finished each task and open their uploads.</p></div></div>
- ${!rk.length?'<div class="card empty"><div class="e">🧑‍🎓</div>No students have joined yet.</div>':`
- <div class="card"><h3 style="margin-bottom:.8rem">By student</h3>${rk.map(({s,rank})=>{const d=l.filter(t=>SubmissionService.isDone(t.id,s.id)).length,p=l.length?Math.round(d/l.length*100):0;return`<div style="margin:.8rem 0"><div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap"><b>${esc(s.name)}</b>${badge(rank)}<span class="meta">${d}/${l.length} · ${p}%</span></div><div class="bar" style="margin-top:.3rem"><i style="width:${p}%"></i></div></div>`}).join('')}</div>
- <div class="card table-wrap" style="margin-top:1rem"><h3 style="margin-bottom:.8rem">By task</h3>${l.length?`<table><tr><th>Task</th><th>Due</th>${rk.map(r=>`<th>${esc(r.s.name.split(' ')[0])}</th>`).join('')}</tr>
- ${l.map(t=>`<tr><td>${esc(t.title)}</td><td>${fmt(t.due)}</td>${rk.map(({s})=>{const x=SubmissionService.get(t.id,s.id);return`<td>${x?(x.kind==='submitted'?`<button class="linkbtn" onclick="viewSub('${t.id}','${s.id}')">📎 Submitted${x.files&&x.files.length?' ('+x.files.length+')':''}</button>`:'✅ Done'):(new Date(t.due)<Date.now()?'⚠️ Missing':'⏳ Pending')}</td>`}).join('')}</tr>`).join('')}</table>`:'<p class="meta">Create a task to start tracking.</p>'}</div>`}`}
-function viewSub(tid,sid){const t=TaskService.all().find(x=>x.id===tid),s=UserService.all().find(x=>x.id===sid),x=SubmissionService.get(tid,sid);if(!t||!s||!x)return;
- dlg().innerHTML=`<h3>${esc(s.name)}</h3><div class="meta">${esc(t.title)} · submitted ${fmt(x.at)}</div>${x.note?`<p>${esc(x.note)}</p>`:''}${filesHTML(x.files)||'<p class="meta">No files attached.</p>'}
- <div style="text-align:right;margin-top:1rem"><button class="btn" onclick="dlg().close()">Close</button></div>`;dlg().showModal();hydrate()}
-
-/* ---- Dialogs & actions ---- */
-const toLocal=d=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,16)};
-const upBox=`<div class="up" id="up" hidden><div class="bar"><i style="width:0"></i></div><small id="upmsg"></small></div>`;
-function taskDialog(id){const u=UserService.me(),stu=u.role==='student',t=id?TaskService.all().find(x=>x.id===id):{type:stu?'personal':'assignment',due:new Date(Date.now()+1728e5).toISOString()};
- dlg().innerHTML=`<h3>${id?'Edit':'New'} ${stu?'personal task':'task'}</h3>
- <label for="tt">Title</label><input id="tt" value="${esc(t.title||'')}">
- ${stu?'':`<label for="ty">Type</label><select id="ty">${['quiz','assignment','activity'].map(k=>`<option value="${k}" ${t.type===k?'selected':''}>${TYPES[k].l}</option>`).join('')}</select><label for="tc">Course</label><input id="tc" value="${esc(t.course||'')}" placeholder="e.g. IT 301">`}
- <label for="td">Deadline</label><input id="td" type="datetime-local" value="${toLocal(t.due)}">
- <label for="tx">Details (optional)</label><textarea id="tx" rows="3">${esc(t.desc||'')}</textarea>
- <label for="tf">Add photos, videos or files (optional, up to ${MAXMB} MB each)</label><input id="tf" type="file" multiple accept="${ACCEPT}">
- ${(t.files||[]).length?`<div style="margin-top:.4rem">${t.files.map(f=>`<label class="chk"><input type="checkbox" class="rm" value="${esc(f.path)}"> Remove ${esc(f.name)}</label>`).join('')}</div>`:''}
- ${upBox}<div class="err" id="derr" role="alert"></div><div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.8rem"><button class="btn ghost" onclick="dlg().close()">Cancel</button><button class="btn" id="sv" onclick="saveTask('${id||''}')">Save</button></div>`;dlg().showModal()}
-async function saveTask(id){const u=C.me,stu=u.role==='student',title=$('#tt').value.trim(),due=$('#td').value,inp=$('#tf');
- if(!title||!due){$('#derr').textContent='Add a title and a deadline.';return}
- const fe=fileError(inp);if(fe){$('#derr').textContent=fe;return}
- $('#sv').disabled=true;const up=await uploadAll([...inp.files]);if(up.error){$('#derr').textContent=up.error;$('#sv').disabled=false;return}
- const old=id?C.tasks.find(x=>x.id===id):null,gone=[...document.querySelectorAll('.rm:checked')].map(c=>c.value),
-  row={title,due:new Date(due).toISOString(),descr:$('#tx').value.trim(),type:stu?'personal':$('#ty').value,course:stu?'':$('#tc').value.trim(),files:[...((old&&old.files)||[]).filter(f=>!gone.includes(f.path)),...up.files]};
- const r=id?await sb.from('tasks').update(row).eq('id',id):await sb.from('tasks').insert({...row,owner:u.id});
- if(r.error){await removeFiles(up.files);$('#derr').textContent=r.error.message;$('#sv').disabled=false;return}
- await removeFiles(((old&&old.files)||[]).filter(f=>gone.includes(f.path)));
- dlg().close();await refresh();render();NotificationService.tick(u)}
-async function removeTask(id){if(!confirm('Delete this task and its files? This can\'t be undone.'))return;const t=C.tasks.find(x=>x.id===id),r=await sb.from('tasks').delete().eq('id',id);
- if(r.error)return toast(r.error.message,true);await removeFiles(t&&t.files);await refresh();render()}
-
-function submitDialog(id){const t=TaskService.all().find(x=>x.id===id);
- dlg().innerHTML=`<h3>Submit: ${esc(t.title)}</h3><label for="sf">Attach photos, videos or files (up to ${MAXMB} MB each)</label><input id="sf" type="file" multiple accept="${ACCEPT}"><label for="sn">Note to instructor (optional)</label><textarea id="sn" rows="3"></textarea>
- ${upBox}<div class="err" id="derr" role="alert"></div>
- <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.8rem"><button class="btn ghost" onclick="dlg().close()">Cancel</button><button class="btn" id="sv" onclick="submitWork('${id}')">Submit</button></div>`;dlg().showModal()}
-async function saveSub(id,kind,note,files){const u=C.me,old=SubmissionService.get(id,u.id);
- const r=await sb.from('subs').upsert({task_id:id,student_id:u.id,kind,note,files,at:new Date().toISOString()});
- if(r.error){await removeFiles(files);return r}await removeFiles(old&&old.files);return r}
-async function submitWork(id){const u=C.me,inp=$('#sf'),fe=fileError(inp);if(fe){$('#derr').textContent=fe;return}
- $('#sv').disabled=true;const up=await uploadAll([...inp.files]);if(up.error){$('#derr').textContent=up.error;$('#sv').disabled=false;return}
- const r=await saveSub(id,'submitted',$('#sn').value.trim(),up.files);if(r.error){$('#derr').textContent=r.error.message;$('#sv').disabled=false;return}
- dlg().close();await refresh();celebrate(u)}
-async function complete(id){const u=C.me,r=await saveSub(id,'done','',[]);if(r.error)return toast(r.error.message,true);await refresh();celebrate(u)}
-async function undo(id){const old=SubmissionService.get(id,C.me.id),r=await sb.from('subs').delete().eq('task_id',id).eq('student_id',C.me.id);
- if(r.error)return toast(r.error.message,true);await removeFiles(old&&old.files);await refresh();render()}
-function celebrate(u){const n=RewardService.done(u.id),up=n>0&&n%3===0&&n<=12;render();
- toast(up?`<b>🎉 Level up!</b>Your ${RewardService.choice(u.id)==='pet'?'dragon':'plant'} reached level ${RewardService.level(n)}.`:'<b>✅ Task done</b>Keep the streak going.');if(up)confetti()}
-function showNotes(){const u=UserService.me(),l=NotificationService.log(u.id);
- dlg().innerHTML=`<h3>Reminders</h3>${l.length?l.map(n=>`<div style="padding:.5rem 0;border-bottom:1px solid var(--line)"><b>${esc(n.title)}</b><div class="meta">${esc(n.msg)} · ${new Date(n.at).toLocaleString()}</div></div>`).join(''):'<div class="empty"><div class="e">🔕</div>No reminders yet. You get one 24 hours before a deadline and one when it arrives.</div>'}
- <div style="text-align:right;margin-top:.8rem"><button class="btn" onclick="dlg().close()">Close</button></div>`;dlg().showModal()}
-
-/* ============ 5. Start ============ */
-(async()=>{
- if(!READY){$('#root').innerHTML=setupView();return}
- await refresh();render();NotificationService.tick(C.me);
- sb.auth.onAuthStateChange((ev,ses)=>{if((ev==='SIGNED_IN'&&ses&&(!C.me||C.me.id!==ses.user.id))||ev==='SIGNED_OUT')
-  setTimeout(async()=>{await refresh();render();NotificationService.tick(C.me)},0)});
- /* Keep deadlines, submissions and rankings fresh without interrupting a playing video. */
- setInterval(async()=>{if(!C.me)return;const changed=await refresh();
-  if(!C.me||changed||![...document.querySelectorAll('video')].some(v=>!v.paused))render();NotificationService.tick(C.me)},30000);
-})();
-</script>
-</body>
-</html>
+/* ---------- events ---------- */
+document.addEventListener('click',async e=>{
+ try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume()}catch{}
+ const el=e.target.closest('[data-act],[data-tab],[data-flt]');if(!el)return;const{act,id,tab:tb,flt:fl}=el.dataset;
+ if(tb){tab=tb;app()}else if(fl){flt=fl;app()}
+ else if(act==='out'){await sb.auth.signOut()}
+ else if(act==='new')taskForm();
+ else if(act==='edit')taskForm(id);
+ else if(act==='done')doneForm(id);
+ else if(act==='bell'){beep(1);modal(`<h3>Notifications</h3>${notes.map(n=>`<p>${esc(n.m)}<br><span class="mut">${n.at.toLocaleTimeString()}</span></p>`).join('')||'<p class="mut">No reminders yet. You’ll get an alarm 24 hours before, 1 hour before, and at each deadline.</p>'}`)}
+ else if(act==='del'){if(!confirm('Delete this task?'))return;const{error}=await sb.from('tasks').delete().eq('id',id);if(error)return toast(error.message,1);await load();app()}
+ else if(act==='undo'){const{error}=await sb.from('submissions').delete().eq('id',id);if(error)return toast(error.message,1);await load();app()}
+});
+document.addEventListener('change',async e=>{if(e.target.matches('[data-plant]')){const{error}=await sb.from('profiles').update({plant:e.target.value}).eq('id',me.id);if(error)return toast(error.message,1);await load();app()}});
+</script></body></html>
